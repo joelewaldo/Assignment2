@@ -1,5 +1,8 @@
 import re
 from urllib.parse import urlparse
+from utils.download import download
+from configparser import ConfigParser
+from utils.config import Config
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -40,3 +43,11 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+if __name__ == "__main__":
+    cparser = ConfigParser()
+    cparser.read("config.ini")
+    config = Config(cparser)
+    test_url = "https://ics.uci.edu/~mikes/"
+    resp = download(test_url, config)
+    scraper(test_url, resp)
