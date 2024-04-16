@@ -25,6 +25,8 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
+        if parsed.netloc not in set(["ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]):
+            return False
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -38,3 +40,6 @@ def is_valid(url):
     except TypeError:
         print ("TypeError for ", parsed)
         raise
+
+if __name__ == "__main__":
+    print(is_valid("https://youtube.com"))
