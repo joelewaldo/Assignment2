@@ -1,9 +1,9 @@
 from urllib.robotparser import RobotFileParser
 from urllib.parse import urlparse
 from urllib.request import urlopen
+from bs4 import BeautifulSoup
 import urllib.error
 import ssl
-from lxml import etree
 
 class Robots:
   def __init__(self, userAgent: str = "*"):
@@ -15,22 +15,29 @@ class Robots:
     """Determine if the user agent can fetch the specified URL."""
     self._addSite(url)
     baseUrl = self._getBaseUrl(url)
-    
-    robot = self._robots[baseUrl]
-    return robot.can_fetch(self.userAgent, url)
+
+    if baseUrl in self._robots:
+      robot = self._robots[baseUrl]
+      return robot.can_fetch(self.userAgent, url)
+    return True
 
   def sitemaps(self, url) -> list[str]:
     """Retrieve list of sitemap URLs declared in the robots.txt."""
     self._addSite(url)
     baseUrl = self._getBaseUrl(url)
     
-    robot = self._robots[baseUrl]
-    
-    sitemaps = robot.site_maps()
-    
-    if sitemaps:
-      return sitemaps
+    if baseUrl in self._robots:
+      robot = self._robots[baseUrl]
+      sitemaps = robot.site_maps()
+      if sitemaps:
+        return sitemaps
     return []
+
+  def parse_sitemap(self, xml_content) -> list[str]:
+    """Parses a sitemap and returns a list of URLs associated with it."""
+    soup = BeautifulSoup(xml_content, 'xml')
+    urls = soup.find_all('loc') 
+    return [url.text for url in urls]
   
   def _getBaseUrl(self, url):
     """Extract the base URL from the given URL."""
@@ -64,13 +71,13 @@ class Robots:
     robotParser.parse(raw.splitlines())
     self._robots[url] = robotParser
 
-  def parse_sitemap(self, xml_content) -> list[str]:
-    tree = etree.fromstring(xml_content)
-    urls = tree.xpath('//url/loc/text()')
-    return urls
-
 if __name__ == "__main__":
-  dummy_url = "https://statconsulting.ics.uci.edu/"
+  dummy_url = "https://www.stat.uci.edu/wp-sitemap.xml"
   robot = Robots()
   print(robot.can_fetch(dummy_url))
   print(robot.sitemaps(dummy_url))
+  
+  import requests
+
+  content = requests.get(dummy_url)
+  print(robot.parse_sitemap(content.content))
