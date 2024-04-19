@@ -28,6 +28,10 @@ def extract_next_links(url, resp):
     # max retries: 5 for status and errors then return empty list
     if not resp.raw_response.content:
         return []
+    
+    # checking for any sitemap links
+    if resp.url.lower().endswith('.xml'):
+        return ROBOT.parse_sitemap(resp.raw_response.content)
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser', from_encoding='utf-8')
     # doesn't get all the links in the page, might need to use robots.txt and sitemaps
@@ -37,11 +41,7 @@ def extract_next_links(url, resp):
     for i, link in enumerate(all_links):
         hyperlink_list.append(link.get('href'))
 
-    # checking for any sitemap links
-    soup = BeautifulSoup(resp.raw_response.content, 'xml')
-    sitemapLinks = [element.text for element in soup.find_all('loc')]
-
-    return list(set(hyperlink_list + sitemapLinks))
+    return hyperlink_list
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 

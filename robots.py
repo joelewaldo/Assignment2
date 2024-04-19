@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from urllib.request import urlopen
 import urllib.error
 import ssl
+from lxml import etree
 
 class Robots:
   def __init__(self, userAgent: str = "*"):
@@ -63,9 +64,13 @@ class Robots:
     robotParser.parse(raw.splitlines())
     self._robots[url] = robotParser
 
+  def parse_sitemap(self, xml_content) -> list[str]:
+    tree = etree.fromstring(xml_content)
+    urls = tree.xpath('//url/loc/text()')
+    return urls
+
 if __name__ == "__main__":
   dummy_url = "https://statconsulting.ics.uci.edu/"
-
   robot = Robots()
   print(robot.can_fetch(dummy_url))
   print(robot.sitemaps(dummy_url))
