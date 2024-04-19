@@ -20,8 +20,10 @@ class Worker(Thread):
     def run(self):
         while True:
             tbd_url = self.frontier.get_tbd_url()
+            # This checks for any next to be downloaded URLs that are obtained after we parse the existing pages
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
+                print("++++++++ (worker.py) The frontier is empty and there were no tbd urls")
                 break
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(

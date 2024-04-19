@@ -39,8 +39,11 @@ class Frontier(object):
         ''' This function can be overridden for alternate saving techniques. '''
         total_count = len(self.save)
         tbd_count = 0
+        print("CHECK THIS length of self.save: ", len(self.save))
         for url, completed in self.save.values():
+            print("CHECK THIS url: ", url, "CHECK IF COMPLETED completed: ", completed)
             if not completed and is_valid(url):
+                print('This is getting called weeeeeeee')
                 self.to_be_downloaded.append(url)
                 tbd_count += 1
         self.logger.info(
@@ -58,6 +61,7 @@ class Frontier(object):
         urlhash = get_urlhash(url)
         if urlhash not in self.save:
             self.save[urlhash] = (url, False)
+            # "saves" to save file
             self.save.sync()
             self.to_be_downloaded.append(url)
     

@@ -1,12 +1,14 @@
 import re
 from urllib.parse import urlparse
-from utils.download import download
-from configparser import ConfigParser
-from utils.config import Config
+from bs4 import BeautifulSoup
+import lxml
 
 def scraper(url, resp):
+    # print("++++++++ (Scraper.py) url: HERE", url)
+    # print("++++++++(Scraper.py) resp: HERE", resp)
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+    res = [link for link in links if is_valid(link)]
+    return res
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -18,9 +20,19 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    print(resp.raw_response.content)
 
-    return list()
+    # max retries: 5 for status and errors then return empty list
+    if not resp.raw_response.content:
+        return []
+
+    soup = BeautifulSoup(resp.raw_response.content, 'html.parser', from_encoding='utf-8')
+    # doesn't get all the links in the page, might need to use robots.txt and sitemaps
+    
+    all_links = soup.find_all('a')
+    hyperlink_list = []
+    for i, link in enumerate(all_links):
+        hyperlink_list.append(link.get('href'))
+    return hyperlink_list
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -28,8 +40,22 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
+        
         if parsed.scheme not in set(["http", "https"]):
             return False
+
+        domain = parsed.netloc
+
+        dotlist = domain.split('.')
+        print("." + ".".join(dotlist[-3:]))
+        if not ".".join(dotlist[-3:]) in set([".ics.uci.edu", ".cs.uci.edu", ".informatics.uci.edu", ".stat.uci.edu", "ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]):
+            return False
+        '''
+        upvote:  1, 1
+        downvote: 10
+        
+        '''
+        
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -45,9 +71,4 @@ def is_valid(url):
         raise
 
 if __name__ == "__main__":
-    cparser = ConfigParser()
-    cparser.read("config.ini")
-    config = Config(cparser)
-    test_url = "https://ics.uci.edu/~mikes/"
-    resp = download(test_url, config)
-    scraper(test_url, resp)
+    print(is_valid("https://wfuckww.ics.uci.edu/about/search/index.php"))
