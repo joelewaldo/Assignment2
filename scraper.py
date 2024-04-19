@@ -1,13 +1,17 @@
 import re
+from robots import Robots
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import lxml
 
+ROBOT = Robots()
+
 def scraper(url, resp):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
+
     links = extract_next_links(url, resp)
-    res = [link for link in links if is_valid(link)]
+    res = [link for link in links if is_valid(link)] + ROBOT.sitemaps(resp.url)
     return res
 
 def extract_next_links(url, resp):
@@ -32,7 +36,12 @@ def extract_next_links(url, resp):
     hyperlink_list = []
     for i, link in enumerate(all_links):
         hyperlink_list.append(link.get('href'))
-    return hyperlink_list
+
+    # checking for any sitemap links
+    soup = BeautifulSoup(resp.raw_response.content, 'xml')
+    sitemapLinks = [element.text for element in soup.find_all('loc')]
+
+    return list(set(hyperlink_list + sitemapLinks))
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -45,9 +54,7 @@ def is_valid(url):
             return False
 
         domain = parsed.netloc
-
         dotlist = domain.split('.')
-        print("." + ".".join(dotlist[-3:]))
         if not ".".join(dotlist[-3:]) in set([".ics.uci.edu", ".cs.uci.edu", ".informatics.uci.edu", ".stat.uci.edu", "ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]):
             return False
         '''
@@ -55,6 +62,9 @@ def is_valid(url):
         downvote: 10
         
         '''
+
+        if not ROBOT.can_fetch(url):
+            return False
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
