@@ -2,7 +2,6 @@ import re
 from robots import Robots
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-import lxml
 
 ROBOT = Robots()
 
@@ -26,7 +25,7 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
     # max retries: 5 for status and errors then return empty list
-    if not resp.raw_response.content:
+    if not resp.raw_content or not resp.raw_response.content:
         return []
     
     # checking for any sitemap links
@@ -82,3 +81,4 @@ def is_valid(url):
 
 if __name__ == "__main__":
     print(is_valid("https://wfuckww.ics.uci.edu/about/search/index.php"))
+    
