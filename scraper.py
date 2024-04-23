@@ -26,8 +26,17 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
     # max retries: 5 for status and errors then return empty list
-    if not resp.raw_response.content:
-        return []
+
+    # Detect and avoid dead URLs that return a 200 status but no data (click here to see what the different HTTP status codes meanLinks to an external site.)
+    hyperlink_list = []
+
+
+    if resp.status == 200 and resp.raw_response is None:
+        return hyperlink_list
+    
+    if resp.status != 200:
+        return hyperlink_list
+
     
     # checking for any sitemap links
     if resp.url.lower().endswith('.xml'):
@@ -37,7 +46,6 @@ def extract_next_links(url, resp):
     # doesn't get all the links in the page, might need to use robots.txt and sitemaps
     
     all_links = soup.find_all('a')
-    hyperlink_list = []
     for i, link in enumerate(all_links):
         hyperlink_list.append(link.get('href'))
 
