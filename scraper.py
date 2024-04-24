@@ -1,5 +1,5 @@
 import re
-from robots import Robots
+from crawler.robots import Robots
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
