@@ -8,10 +8,10 @@ class Crawler(object):
     def __init__(self, config, restart, frontier_factory=Frontier, worker_factory=Worker, robots_factory=Robots, politeness_factory=Politeness):
         self.config = config
         self.logger = get_logger("CRAWLER")
-        self.frontier = frontier_factory(config, restart)
+        self.robot = robots_factory(config)
+        self.frontier = frontier_factory(config, restart, self.robot)
         self.workers = list()
         self.worker_factory = worker_factory
-        self.robot = robots_factory(config)
         self.politeness = politeness_factory(self.robot)
 
     def start_async(self):
