@@ -25,12 +25,19 @@ class Worker(Thread):
                 self.logger.info("Frontier is empty. Stopping Crawler.")
                 print("++++++++ (worker.py) The frontier is empty and there were no tbd urls")
                 break
+
+            # respects repective site's robots.txt, if doesn't exist uses default politeness delay
+            delay = self.config.time_delay
+            if self.frontier.robot.url_exists(tbd_url):
+                delay = self.frontier.robot.crawl_delay(tbd_url)
+            # moved time.sleep here; should work the same
+            time.sleep(delay)
+
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
                 f"using cache {self.config.cache_server}.")
-            scraped_urls = scraper.scraper(tbd_url, resp)
+            scraped_urls = scraper.scraper(tbd_url, resp, self.frontier.robot)
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
-            time.sleep(self.config.time_delay)

@@ -1,15 +1,20 @@
 from urllib.robotparser import RobotFileParser
 from urllib.parse import urlparse
-from urllib.request import urlopen
 from bs4 import BeautifulSoup
-import urllib.error
-import ssl
+from utils.download import download
+from utils import get_logger
 
 class Robots:
-  def __init__(self, userAgent: str = "*"):
-    self.userAgent = userAgent
+  def __init__(self, config):
+    self.config = config
+    self.userAgent = config.user_agent
+    self.logger = get_logger("Robots", "Robots")
 
     self._robots: dict[str, RobotFileParser] = {}
+
+  def url_exists(self, url) -> bool:
+    """Checks if url exists in robots dictionary. Returns True if it does and False if not."""
+    return url in self._robots
 
   def can_fetch(self, url) -> bool:
     """Determine if the user agent can fetch the specified URL."""
@@ -20,6 +25,21 @@ class Robots:
       robot = self._robots[baseUrl]
       return robot.can_fetch(self.userAgent, url)
     return True
+  
+  def crawl_delay(self, url) -> float:
+    """
+    Returns the crawl delay for a specific url. If robots.txt does not exist,
+    it will return 0.
+    """
+    self._addSite(url)
+    baseUrl = self._getBaseUrl(url)
+
+    if baseUrl in self._robots:
+      robot = self._robots[baseUrl]
+      delay = robot.crawl_delay(self.userAgent)
+      if delay:
+        return delay
+    return 0
 
   def sitemaps(self, url) -> list[str]:
     """Retrieve list of sitemap URLs declared in the robots.txt."""
@@ -53,31 +73,36 @@ class Robots:
 
   def _checkRobot(self, url):
     """Read and parse the robots.txt for the specified base URL, ignoring SSL verification when neccessary."""
+    # todo: add more error handling here
     robot_url = f"{url}/robots.txt"
-    try:
-        with urlopen(robot_url) as response:
-            raw = response.read().decode("utf-8")
-    except urllib.error.URLError:
-        print(f"SSL Verification failed for {url}; retrying without verification (unsafe).")
-        try:
-            context = ssl._create_unverified_context()
-            with urlopen(robot_url, context=context) as response:
-                raw = response.read().decode("utf-8")
-        except Exception as ex:
-            print(f"Failed to retrieve robots.txt with disabled SSL verification: {ex}")
-            return 
 
+    res = download(robot_url, self.config, logger=self.logger)
+
+    if not res or not res.raw_response:
+      self.logger.error(f"Failed to download robots.txt from {robot_url}.")
+      return
+    
+    self.logger.info(
+                f"Downloaded {robot_url}, status <{res.status}>, "
+                f"using cache {self.config.cache_server}.")
+    
     robotParser = RobotFileParser()
-    robotParser.parse(raw.splitlines())
+    robotParser.parse(res.raw_response.text.splitlines())
     self._robots[url] = robotParser
 
 if __name__ == "__main__":
+  from configparser import ConfigParser
+  from utils.config import Config
+  from utils.server_registration import get_cache_server
+  config_file = "config.ini"
+
+  cparser = ConfigParser()
+  cparser.read(config_file)
+  config = Config(cparser)
+  config.cache_server = get_cache_server(config, True)
+
   dummy_url = "https://www.stat.uci.edu/wp-sitemap.xml"
-  robot = Robots()
+  robot = Robots(config)
   print(robot.can_fetch(dummy_url))
   print(robot.sitemaps(dummy_url))
-  
-  import requests
-
-  content = requests.get(dummy_url)
-  print(robot.parse_sitemap(content.content))
+  print(robot.crawl_delay(dummy_url))
