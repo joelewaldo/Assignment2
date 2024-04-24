@@ -1,6 +1,7 @@
 import re
 from robots import Robots
 from urllib.parse import urlparse
+from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import lxml
 
@@ -31,11 +32,15 @@ def extract_next_links(url, resp):
     hyperlink_list = []
 
 
-    if resp.status == 200 and resp.raw_response is None:
+    if resp.status == 200 and (resp.raw_response is None or not resp.raw_response.content):
         return hyperlink_list
     
-    if resp.status != 200:
+    if resp.status == 204 or resp.status >= 400:
         return hyperlink_list
+    
+    if resp.status >=300:
+        if "Location" in resp.headers:
+            return [urljoin(resp.url, resp.headers['Location'])]
 
     
     # checking for any sitemap links
