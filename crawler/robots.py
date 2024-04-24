@@ -109,8 +109,7 @@ class Robots:
 
     res = download(robot_url, self.config, logger=self.logger)
 
-    robot_url = normalize(robot_url)
-    urlhash = get_urlhash(robot_url)
+    urlhash = self._getHashUrl(url)
 
     if not res or not res.raw_response:
       self.logger.error(f"Failed to download robots.txt from {robot_url}.")
