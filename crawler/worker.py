@@ -31,22 +31,41 @@ class Worker(Thread):
             # politeness manager here
             self.politeness.wait_polite(tbd_url)
 
-            for attempt in range(self.config.max_retries):
-                try:
-                    resp = download(tbd_url, self.config, self.logger)
-                    self.logger.info(
-                        f"Downloaded {tbd_url}, status <{resp.status}>, "
-                        f"using cache {self.config.cache_server}.")
-                    scraped_urls = scraper.scraper(tbd_url, resp, self.robot)
-                    for scraped_url in scraped_urls:
-                        self.frontier.add_url(scraped_url)
-                    self.frontier.mark_url_complete(tbd_url)
-                    break
-                except Exception as e:
-                    self.logger.error(f"Error downloading or processing {tbd_url}: {str(e)}")
-                    if attempt < self.config.max_retries:
-                        self.logger.info(f"Retrying {tbd_url} (Attempt {attempt + 1}/{self.config.max_retries}) in {self.config.retry_time} seconds.")
-                        time.sleep(self.config.retry_time)
-                    else:
-                        self.logger.error(f"Failed to process {tbd_url} after {self.config.max_retries} attempts.")
-                        break
+            ###
+            # uncomment the code below during development and comment it out during production
+            # temporarily here so we can catch errors
+            ###
+
+            resp = download(tbd_url, self.config, self.logger)
+            self.logger.info(
+                f"Downloaded {tbd_url}, status <{resp.status}>, "
+                f"using cache {self.config.cache_server}.")
+            scraped_urls = scraper.scraper(tbd_url, resp, self.robot)
+            for scraped_url in scraped_urls:
+                self.frontier.add_url(scraped_url)
+            self.frontier.mark_url_complete(tbd_url)
+
+            ###
+            # uncomment the code below during production and comment it out during development
+            # ignores errors and completely skips url
+            ###
+
+            # for attempt in range(self.config.max_retries):
+            #     try:
+            #         resp = download(tbd_url, self.config, self.logger)
+            #         self.logger.info(
+            #             f"Downloaded {tbd_url}, status <{resp.status}>, "
+            #             f"using cache {self.config.cache_server}.")
+            #         scraped_urls = scraper.scraper(tbd_url, resp, self.robot)
+            #         for scraped_url in scraped_urls:
+            #             self.frontier.add_url(scraped_url)
+            #         self.frontier.mark_url_complete(tbd_url)
+            #         break
+            #     except Exception as e:
+            #         self.logger.error(f"Error downloading or processing {tbd_url}: {str(e)}")
+            #         if attempt < self.config.max_retries:
+            #             self.logger.info(f"Retrying {tbd_url} (Attempt {attempt + 1}/{self.config.max_retries}) in {self.config.retry_time} seconds.")
+            #             time.sleep(self.config.retry_time)
+            #         else:
+            #             self.logger.error(f"Failed to process {tbd_url} after {self.config.max_retries} attempts.")
+            #             break
