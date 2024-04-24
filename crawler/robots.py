@@ -2,27 +2,53 @@ from urllib.robotparser import RobotFileParser
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from utils.download import download
-from utils import get_logger
+from utils import get_logger, get_urlhash, normalize
+import shelve
+import os
 
 class Robots:
-  def __init__(self, config):
+  def __init__(self, config, restart):
     self.config = config
     self.userAgent = config.user_agent
     self.logger = get_logger("Robots", "Robots")
 
-    self._robots: dict[str, RobotFileParser] = {}
+    self._robots: dict[str, RobotFileParser | None] = {}
+
+    # save file stuff down here
+    if not os.path.exists(self.config.robot_save_file) and not restart:
+        # Save file does not exist, but request to load save.
+        self.logger.info(
+            f"Did not find save file {self.config.robot_save_file}, "
+            f"recreating from seed.")
+    elif os.path.exists(self.config.robot_save_file) and restart:
+        # Save file does exists, but request to start from seed.
+        self.logger.info(
+            f"Found save file {self.config.robot_save_file}, deleting it.")
+        os.remove(self.config.robot_save_file)
+    # Load existing save file, or create one if it does not exist.
+    self.save = shelve.open(self.config.robot_save_file)
+
+    if not restart:
+      self._parse_save_file()
+  
+  def _parse_save_file(self):
+    print("ROBOT: CHECK THIS length of self.save: ", len(self.save))
+    self._robots = self.save
+    self.logger.info(
+            f"Found {len(self.save)} robots saved.")
 
   def url_exists(self, url) -> bool:
     """Checks if url exists in robots dictionary. Returns True if it does and False if not."""
-    return url in self._robots
+    hashedUrl = self._getHashUrl(url)
+    return hashedUrl in self._robots
 
   def can_fetch(self, url) -> bool:
     """Determine if the user agent can fetch the specified URL."""
     self._addSite(url)
-    baseUrl = self._getBaseUrl(url)
+    hashedUrl = self._getHashUrl(url)
 
-    if baseUrl in self._robots:
-      robot = self._robots[baseUrl]
+    if hashedUrl in self._robots:
+      robot = self._robots[hashedUrl]
       return robot.can_fetch(self.userAgent, url)
     return True
   
@@ -32,10 +58,10 @@ class Robots:
     it will return 0.
     """
     self._addSite(url)
-    baseUrl = self._getBaseUrl(url)
+    hashedUrl = self._getHashUrl(url)
 
-    if baseUrl in self._robots:
-      robot = self._robots[baseUrl]
+    if hashedUrl in self._robots:
+      robot = self._robots[hashedUrl]
       delay = robot.crawl_delay(self.userAgent)
       if delay:
         return delay
@@ -44,10 +70,10 @@ class Robots:
   def sitemaps(self, url) -> list[str]:
     """Retrieve list of sitemap URLs declared in the robots.txt."""
     self._addSite(url)
-    baseUrl = self._getBaseUrl(url)
+    hashedUrl = self._getHashUrl(url)
     
-    if baseUrl in self._robots:
-      robot = self._robots[baseUrl]
+    if hashedUrl in self._robots:
+      robot = self._robots[hashedUrl]
       sitemaps = robot.site_maps()
       if sitemaps:
         return sitemaps
@@ -63,13 +89,18 @@ class Robots:
     """Extract the base URL from the given URL."""
     parsed = urlparse(url)
     return f"{parsed.scheme}://{parsed.netloc}"
+  
+  def _getHashUrl(self, url):
+    baseUrl = self._getBaseUrl(url)
+    robot_url = normalize(baseUrl)
+    return get_urlhash(robot_url)
 
   def _addSite(self, url):
     """Add site to robots dictionary if it's not already present."""
-    baseUrl = self._getBaseUrl(url)
+    hashedUrl = self._getHashUrl(url)
 
-    if not baseUrl in self._robots:
-      self._checkRobot(baseUrl)
+    if not hashedUrl in self._robots:
+      self._checkRobot(self._getBaseUrl(url))
 
   def _checkRobot(self, url):
     """Read and parse the robots.txt for the specified base URL, ignoring SSL verification when neccessary."""
@@ -78,17 +109,23 @@ class Robots:
 
     res = download(robot_url, self.config, logger=self.logger)
 
+    robot_url = normalize(robot_url)
+    urlhash = get_urlhash(robot_url)
+
     if not res or not res.raw_response:
       self.logger.error(f"Failed to download robots.txt from {robot_url}.")
+      self.save[urlhash] = None
+      # "saves" to save file
+      self.save.sync()
       return
     
     self.logger.info(
                 f"Downloaded {robot_url}, status <{res.status}>, "
                 f"using cache {self.config.cache_server}.")
-    
+
     robotParser = RobotFileParser()
     robotParser.parse(res.raw_response.text.splitlines())
-    self._robots[url] = robotParser
+    self._robots[urlhash] = robotParser
 
 if __name__ == "__main__":
   from configparser import ConfigParser
