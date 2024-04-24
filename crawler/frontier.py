@@ -13,7 +13,7 @@ class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
         self.config = config
-        self.to_be_downloaded = list()
+        self.to_be_downloaded = Queue()
 
         # initializing robots with config
         self.robot = Robots(config)
@@ -48,8 +48,7 @@ class Frontier(object):
         for url, completed in self.save.values():
             print("CHECK THIS url: ", url, "CHECK IF COMPLETED completed: ", completed)
             if not completed and is_valid(url):
-                print('This is getting called weeeeeeee')
-                self.to_be_downloaded.append(url)
+                self.to_be_downloaded.put(url)
                 tbd_count += 1
         self.logger.info(
             f"Found {tbd_count} urls to be downloaded from {total_count} "
@@ -57,8 +56,9 @@ class Frontier(object):
 
     def get_tbd_url(self):
         try:
-            return self.to_be_downloaded.pop()
-        except IndexError:
+            url = self.to_be_downloaded.get_nowait()
+            return url
+        except Empty:
             return None
 
     def add_url(self, url):
@@ -68,9 +68,10 @@ class Frontier(object):
             self.save[urlhash] = (url, False)
             # "saves" to save file
             self.save.sync()
-            self.to_be_downloaded.append(url)
+            self.to_be_downloaded.put(url)
     
     def mark_url_complete(self, url):
+        self.to_be_downloaded.task_done()
         urlhash = get_urlhash(url)
         if urlhash not in self.save:
             # This should not happen.
