@@ -16,7 +16,7 @@ class Politeness:
 
       delay = self.delay
       if self.robot.url_exists(url):
-        delay = self.robot.crawl_delay(url)
+        delay = max(self.robot.crawl_delay(url), delay)
       
       if elapsed < delay:
         time.sleep(delay - elapsed)

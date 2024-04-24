@@ -52,7 +52,7 @@ class Frontier(object):
 
     def get_tbd_url(self):
         try:
-            url = self.to_be_downloaded.get()
+            url = self.to_be_downloaded.get_nowait()
             return url
         except Empty:
             return None
