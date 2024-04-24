@@ -28,7 +28,7 @@ class Worker(Thread):
 
             # respects repective site's robots.txt, if doesn't exist uses default politeness delay
             delay = self.config.time_delay
-            if self.frontier.url_exists(tbd_url):
+            if self.frontier.robot.url_exists(tbd_url):
                 delay = self.frontier.robot.crawl_delay(tbd_url)
             # moved time.sleep here; should work the same
             time.sleep(delay)
