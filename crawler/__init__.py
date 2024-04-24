@@ -8,7 +8,7 @@ class Crawler(object):
     def __init__(self, config, restart, frontier_factory=Frontier, worker_factory=Worker, robots_factory=Robots, politeness_factory=Politeness):
         self.config = config
         self.logger = get_logger("CRAWLER")
-        self.robot = robots_factory(config)
+        self.robot = robots_factory(config, restart)
         self.frontier = frontier_factory(config, restart, self.robot)
         self.workers = list()
         self.worker_factory = worker_factory
