@@ -43,9 +43,9 @@ class Worker(Thread):
                     self.frontier.mark_url_complete(tbd_url)
                     break
                 except Exception as e:
-                    self.logger.error(f"Error downloading or processing {tbd_url}: {e}")
+                    self.logger.error(f"Error downloading or processing {tbd_url}: {str(e)}")
                     if attempt < self.config.max_retries:
-                        self.logger.info(f"Retrying {tbd_url} (Attempt {attempt + 2}/{self.config.max_retries}) in {self.config.retry_time} seconds.")
+                        self.logger.info(f"Retrying {tbd_url} (Attempt {attempt + 1}/{self.config.max_retries}) in {self.config.retry_time} seconds.")
                         time.sleep(self.config.retry_time)
                     else:
                         self.logger.error(f"Failed to process {tbd_url} after {self.config.max_retries} attempts.")
