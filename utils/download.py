@@ -4,8 +4,14 @@ import time
 
 from utils.response import Response
 
-def download(url, config, logger=None):
+def download(url, config, logger=None, delay: int = 0):
     host, port = config.cache_server
+
+    if not delay:
+        delay = 0
+
+    time.sleep(delay)
+
     resp = requests.get(
         f"http://{host}:{port}/",
         params=[("q", f"{url}"), ("u", f"{config.user_agent}")])

@@ -1,21 +1,18 @@
 import re
-from robots import Robots
+from crawler.robots import Robots
 from urllib.parse import urlparse
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
-import lxml
 
-ROBOT = Robots()
-
-def scraper(url, resp):
+def scraper(url, resp, robot: Robots):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
 
-    links = extract_next_links(url, resp)
-    res = [link for link in links if is_valid(link)] + ROBOT.sitemaps(resp.url)
+    links = extract_next_links(url, resp, robot)
+    res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
     return res
 
-def extract_next_links(url, resp):
+def extract_next_links(url, resp, robot: Robots):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -45,7 +42,7 @@ def extract_next_links(url, resp):
     
     # checking for any sitemap links
     if resp.url.lower().endswith('.xml'):
-        return ROBOT.parse_sitemap(resp.raw_response.content)
+        return robot.parse_sitemap(resp.raw_response.content)
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser', from_encoding='utf-8')
     # doesn't get all the links in the page, might need to use robots.txt and sitemaps
@@ -56,7 +53,7 @@ def extract_next_links(url, resp):
 
     return hyperlink_list
 
-def is_valid(url):
+def is_valid(url, robot: Robots):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
@@ -76,7 +73,7 @@ def is_valid(url):
         
         '''
 
-        if not ROBOT.can_fetch(url):
+        if not robot.can_fetch(url):
             return False
         
         return not re.match(
@@ -95,3 +92,4 @@ def is_valid(url):
 
 if __name__ == "__main__":
     print(is_valid("https://wfuckww.ics.uci.edu/about/search/index.php"))
+    
