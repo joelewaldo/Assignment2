@@ -12,6 +12,10 @@ class Robots:
 
     self._robots: dict[str, RobotFileParser] = {}
 
+  def url_exists(self, url) -> bool:
+    """Checks if url exists in robots dictionary. Returns True if it does and False if not."""
+    return url in self._robots
+
   def can_fetch(self, url) -> bool:
     """Determine if the user agent can fetch the specified URL."""
     self._addSite(url)
