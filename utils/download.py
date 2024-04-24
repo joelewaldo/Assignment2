@@ -4,7 +4,7 @@ import time
 
 from utils.response import Response
 
-def download(url, config, delay: int = 0, logger=None):
+def download(url, config, logger=None, delay: int = 0):
     host, port = config.cache_server
 
     if not delay:

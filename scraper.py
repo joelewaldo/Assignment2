@@ -23,7 +23,7 @@ def extract_next_links(url, resp, robot: Robots):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
     # max retries: 5 for status and errors then return empty list
-    if not resp.raw_content or not resp.raw_response.content:
+    if not resp.raw_response or not resp.raw_response.content:
         return []
     
     # checking for any sitemap links

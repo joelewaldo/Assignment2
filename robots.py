@@ -25,15 +25,17 @@ class Robots:
   def crawl_delay(self, url) -> float:
     """
     Returns the crawl delay for a specific url. If robots.txt does not exist,
-    it will return the POLITENESS value found in config.
+    it will return 0.
     """
     self._addSite(url)
     baseUrl = self._getBaseUrl(url)
 
     if baseUrl in self._robots:
       robot = self._robots[baseUrl]
-      return robot.crawl_delay(self.userAgent)
-    return self.config.time_delay
+      delay = robot.crawl_delay(self.userAgent)
+      if delay:
+        return delay
+    return 0
 
   def sitemaps(self, url) -> list[str]:
     """Retrieve list of sitemap URLs declared in the robots.txt."""
