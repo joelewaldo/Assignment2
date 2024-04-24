@@ -114,6 +114,7 @@ class Robots:
     if not res or not res.raw_response:
       self.logger.error(f"Failed to download robots.txt from {robot_url}.")
       self.save[urlhash] = None
+      self._robots[urlhash] = None
       # "saves" to save file
       self.save.sync()
       return
@@ -125,6 +126,8 @@ class Robots:
     robotParser = RobotFileParser()
     robotParser.parse(res.raw_response.text.splitlines())
     self._robots[urlhash] = robotParser
+    self.save[urlhash] = robotParser
+    # "saves" to save file
     self.save.sync()
 
 if __name__ == "__main__":
