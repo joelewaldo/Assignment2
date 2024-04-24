@@ -125,6 +125,7 @@ class Robots:
     robotParser = RobotFileParser()
     robotParser.parse(res.raw_response.text.splitlines())
     self._robots[urlhash] = robotParser
+    self.save.sync()
 
 if __name__ == "__main__":
   from configparser import ConfigParser
