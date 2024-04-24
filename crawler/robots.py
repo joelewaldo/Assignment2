@@ -47,8 +47,8 @@ class Robots:
     self._addSite(url)
     hashedUrl = self._getHashUrl(url)
 
-    if hashedUrl in self._robots:
-      robot = self._robots[hashedUrl]
+    robot = self._robots[hashedUrl]
+    if robot:
       return robot.can_fetch(self.userAgent, url)
     return True
   
@@ -60,8 +60,8 @@ class Robots:
     self._addSite(url)
     hashedUrl = self._getHashUrl(url)
 
-    if hashedUrl in self._robots:
-      robot = self._robots[hashedUrl]
+    robot = self._robots[hashedUrl]
+    if robot:
       delay = robot.crawl_delay(self.userAgent)
       if delay:
         return delay
@@ -72,8 +72,8 @@ class Robots:
     self._addSite(url)
     hashedUrl = self._getHashUrl(url)
     
-    if hashedUrl in self._robots:
-      robot = self._robots[hashedUrl]
+    robot = self._robots[hashedUrl]
+    if robot:
       sitemaps = robot.site_maps()
       if sitemaps:
         return sitemaps
