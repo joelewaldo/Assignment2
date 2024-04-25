@@ -8,6 +8,11 @@ def scraper(url, resp, robot: Robots):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
 
+    # checking for any sitemap links
+    if resp.url.lower().endswith('.xml'):
+        if resp and resp.raw_response and resp.raw_response.content:
+            return robot.parse_sitemap(resp.raw_response.content)
+
     links = extract_next_links(url, resp, robot)
     res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
     return res
@@ -38,10 +43,6 @@ def extract_next_links(url, resp, robot: Robots):
     if resp.status >=300:
         if "Location" in resp.raw_response.headers:
             return [urljoin(resp.url, resp.headers['Location'])]
-    
-    # checking for any sitemap links
-    if resp.url.lower().endswith('.xml'):
-        return robot.parse_sitemap(resp.raw_response.content)
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser', from_encoding='utf-8')
     # doesn't get all the links in the page, might need to use robots.txt and sitemaps
