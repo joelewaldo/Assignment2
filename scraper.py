@@ -1,18 +1,26 @@
 import re
 from crawler.robots import Robots
+from crawler.checksums import Checksums
 from urllib.parse import urlparse
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
-def scraper(url, resp, robot: Robots):
+def scraper(url, resp, robot: Robots, checksums: Checksums):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
 
-    links = extract_next_links(url, resp, robot)
-    res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
+    # checking for any sitemap links
+    sitemaps = robot.parse_sitemap(resp)
+    if sitemaps:
+        return sitemaps
+
+    links = extract_next_links(url, resp)
+    checksum = checksums.compute_checksum(resp)
+    res = [link for link in links if is_valid(link, robot) and not checksums.is_exact_duplicate(checksum)] + robot.sitemaps(resp.url)
+
     return res
 
-def extract_next_links(url, resp, robot: Robots):
+def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -36,12 +44,8 @@ def extract_next_links(url, resp, robot: Robots):
         return hyperlink_list
     
     if resp.status >=300:
-        if "Location" in resp.headers:
+        if "Location" in resp.raw_response.headers:
             return [urljoin(resp.url, resp.headers['Location'])]
-    
-    # checking for any sitemap links
-    if resp.url.lower().endswith('.xml'):
-        return robot.parse_sitemap(resp.raw_response.content)
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser', from_encoding='utf-8')
     # doesn't get all the links in the page, might need to use robots.txt and sitemaps
@@ -90,5 +94,7 @@ def is_valid(url, robot: Robots):
         raise
 
 if __name__ == "__main__":
+    # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
+    # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
+    # print(compute_checksum('https://cs.ics.uci.edu/'))
     print(is_valid("https://gitlab-cs142a-s23.ics.uci.edu/users/sign_in"))
-    
