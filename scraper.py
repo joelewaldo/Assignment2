@@ -1,27 +1,27 @@
 import re
-from robots import Robots
+from crawler.robots import Robots
+from crawler.checksums import Checksums
 from urllib.parse import urlparse
+from urllib.parse import urljoin
 from bs4 import BeautifulSoup
-import lxml
-import requests
+
+# May not need these
 import hashlib
 import threading
 
-ROBOT = Robots()
-SAVE = shelve.open(self.config.checksums_save_file)
-lock = threading.RLock()
-
-def scraper(url, resp, checkums):
+def scraper(url, resp, robot: Robots, checksums: Checksums):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
 
-    links = extract_next_links(resp.url, resp)
+    # checking for any sitemap links
+    sitemaps = robot.parse_sitemap(resp)
+    if sitemaps:
+        return sitemaps
 
-    # Compute the checksum of the current document here using url/resp
+    links = extract_next_links(url, resp)
     checksum = checksums.compute_checksum(resp)
+    res = [link for link in links if is_valid(link, robot) and not checksums.is_exact_duplicate(checksum)] + robot.sitemaps(resp.url)
 
-     # Then we want to add the link to res only if the computed checksum isn't an exact duplicate
-    res = [link for link in links if is_valid(link) and not checksums.is_exact_duplicate(checksum)] + ROBOT.sitemaps(resp.url)
     return res
 
 def extract_next_links(url, resp):
@@ -35,27 +35,32 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
-    # Encountered an error related to resp.raw_response evaluating to None
-
     # max retries: 5 for status and errors then return empty list
-    if not resp.raw_response or resp.raw_response.content:
-        return []
+
+    # Detect and avoid dead URLs that return a 200 status but no data (click here to see what the different HTTP status codes meanLinks to an external site.)
+    hyperlink_list = []
+
+
+    if resp.status == 200 and (resp.raw_response is None or not resp.raw_response.content):
+        return hyperlink_list
     
-    # checking for any sitemap links
-    if resp.url.lower().endswith('.xml'):
-        return ROBOT.parse_sitemap(resp.raw_response.content)
+    if resp.status == 204 or resp.status >= 400:
+        return hyperlink_list
+    
+    if resp.status >=300:
+        if "Location" in resp.raw_response.headers:
+            return [urljoin(resp.url, resp.headers['Location'])]
 
     soup = BeautifulSoup(resp.raw_response.content, 'html.parser', from_encoding='utf-8')
     # doesn't get all the links in the page, might need to use robots.txt and sitemaps
     
     all_links = soup.find_all('a')
-    hyperlink_list = []
     for i, link in enumerate(all_links):
         hyperlink_list.append(link.get('href'))
 
     return hyperlink_list
 
-def is_valid(url):
+def is_valid(url, robot: Robots):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
@@ -75,15 +80,15 @@ def is_valid(url):
         
         '''
 
-        if not ROBOT.can_fetch(url):
+        if not robot.can_fetch(url):
             return False
         
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
+            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf|war"
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|ppsx"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
@@ -137,3 +142,4 @@ if __name__ == "__main__":
     print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
     print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
     print(compute_checksum('https://cs.ics.uci.edu/'))
+    print(is_valid("https://gitlab-cs142a-s23.ics.uci.edu/users/sign_in"))

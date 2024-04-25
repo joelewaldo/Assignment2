@@ -16,6 +16,9 @@ class Config(object):
         self.port = int(config["CONNECTION"]["PORT"])
 
         self.seed_urls = config["CRAWLER"]["SEEDURL"].split(",")
+        self.max_file_size = int(config["CRAWLER"]["MAXFILESIZE"])
         self.time_delay = float(config["CRAWLER"]["POLITENESS"])
+        self.max_retries = int(config["CRAWLER"]["MAXRETRIES"])
+        self.retry_time = float(config["CRAWLER"]["RETRYTIME"])
 
         self.cache_server = None
