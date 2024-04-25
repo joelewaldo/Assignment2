@@ -3,15 +3,25 @@ from robots import Robots
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 import lxml
+import requests
+import hashlib
+import threading
 
 ROBOT = Robots()
+SAVE = shelve.open(self.config.save_file)
+lock = threading.Lock()
 
 def scraper(url, resp):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
 
     links = extract_next_links(url, resp)
-    res = [link for link in links if is_valid(link)] + ROBOT.sitemaps(resp.url)
+
+    # Compute the checksum of the current document here using url/resp
+    checksum = compute_checksum(url)
+
+     # Then we want to add the link to res only if the computed checksum isn't an exact duplicate
+    res = [link for link in links if is_valid(link) and not is_exact_duplicate(checksum)] + ROBOT.sitemaps(resp.url)
     return res
 
 def extract_next_links(url, resp):
@@ -25,8 +35,10 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
 
+    # Encountered an error related to resp.raw_response evaluating to None
+
     # max retries: 5 for status and errors then return empty list
-    if not resp.raw_response.content:
+    if not resp.raw_response or resp.raw_response.content:
         return []
     
     # checking for any sitemap links
@@ -80,5 +92,52 @@ def is_valid(url):
         print ("TypeError for ", parsed)
         raise
 
+def compute_checksum(url):
+    '''
+    Computes the checksum of the given document passed in as url by using a SHA-256 hash on
+    the content of the url. Saves it to SAVE
+    '''
+    
+    try:
+        # Send a GET request to the URL
+        response = requests.get(url)
+        response.raise_for_status()  # Raises an HTTPError for bad responses
+
+        # Create a new SHA-256 hash object
+        sha256_hash = hashlib.sha256()
+
+        # Update the hash object with the bytes of the content
+        sha256_hash.update(response.content)
+
+        # Return the HEX digest of the hash object
+        return sha256_hash.hexdigest()
+
+    except requests.RequestException as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def is_exact_duplicate(checksum):
+    '''
+    Uses checksum to determine if the computed checksum has been encountered before. If so, it is an
+    exact duplicate and should be skipped. If it isn't, add it to SAVE. Due to the way shelves work,
+    we must manually reassign the set to update it.
+    '''
+    
+    with lock:
+        if 'checksums' not in SAVE:
+            SAVE['checksums'] = set()
+        
+        saved_checksums = SAVE['checksums']
+
+        if checksum not in saved_checksums:
+            saved_checksums.add(checksum)
+            SAVE['checksums'] = saved_checksums
+            SAVE.sync()
+            return False
+        
+        return True
+
 if __name__ == "__main__":
-    print(is_valid("https://wfuckww.ics.uci.edu/about/search/index.php"))
+    print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
+    print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
+    print(compute_checksum('https://cs.ics.uci.edu/'))
