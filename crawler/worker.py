@@ -8,12 +8,13 @@ import time
 
 
 class Worker(Thread):
-    def __init__(self, worker_id, config, frontier, politeness, robot):
+    def __init__(self, worker_id, config, frontier, politeness, robot, simhash):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
         self.politeness = politeness
         self.robot = robot
+        self.simhash = simhash
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
@@ -40,6 +41,10 @@ class Worker(Thread):
 
             if resp.headers and resp.headers['content-length'] and float(resp.headers['content-length']) > self.config.max_file_size * 1048576:
                 self.logger.info(f"Skipping {tbd_url}. File size threshold exceeded {self.config.max_file_size * 1048576} with {float(resp.headers['content-length'])}")
+                continue
+
+            if self.simhash.check_page_is_similar(resp):
+                self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
                 continue
 
             self.logger.info(
