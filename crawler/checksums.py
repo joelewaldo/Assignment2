@@ -1,8 +1,6 @@
 from urllib.robotparser import RobotFileParser
-from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-from utils.download import download
-from utils import get_logger, get_urlhash, normalize
+from utils import get_logger
 import shelve
 import os
 import hashlib
@@ -42,11 +40,11 @@ class Checksums:
     corresonding methods to access the set.
     '''
 
-    self._checksums = self.save
+    self._checksums = self.save['checksums']
     self.logger.info(
             f"Found {len(self.save)} checksums saved.")
   
-  def compute_checksum(response):
+  def compute_checksum(self, response):
     '''
     Computes the checksum of the given document passed in as url by using a SHA-256 hash on
     the content of the url. Saves it to SAVE
@@ -62,11 +60,11 @@ class Checksums:
         # Return the HEX digest of the hash object
         return sha256_hash.hexdigest()
 
-    except requests.RequestException as e:
-        print(f"An error occurred: {e}")
+    except Exception as e:
+        self.logger.error(f"Failed to compute checksum: {e}")
         return None
   
-  def is_exact_duplicate(checksum):
+  def is_exact_duplicate(self, checksum):
     '''
     Uses checksum to determine if the computed checksum has been encountered before. If so, it is an
     exact duplicate and should be skipped. If it isn't, add it to SAVE. Due to the way shelves work,
@@ -74,15 +72,16 @@ class Checksums:
     '''
     
     with lock:
-        if 'checksums' not in SAVE:
-            SAVE['checksums'] = set()
+        if 'checksums' not in self.save:
+            self.save['checksums'] = set()
         
-        saved_checksums = SAVE['checksums']
+        saved_checksums = self.save['checksums']
 
         if checksum not in saved_checksums:
             saved_checksums.add(checksum)
-            SAVE['checksums'] = saved_checksums
-            SAVE.sync()
+            self._checksums.add(checksum)
+            self.save['checksums'] = saved_checksums
+            self.save.sync()
             return False
         
         return True
