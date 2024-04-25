@@ -5,10 +5,6 @@ from urllib.parse import urlparse
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
-# May not need these
-import hashlib
-import threading
-
 def scraper(url, resp, robot: Robots, checksums: Checksums):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
@@ -97,49 +93,8 @@ def is_valid(url, robot: Robots):
         print ("TypeError for ", parsed)
         raise
 
-# def compute_checksum(response):
-#     '''
-#     Computes the checksum of the given document passed in as url by using a SHA-256 hash on
-#     the content of the url. Saves it to SAVE
-#     '''
-    
-#     try:
-#         # Create a new SHA-256 hash object
-#         sha256_hash = hashlib.sha256()
-
-#         # Update the hash object with the bytes of the content
-#         sha256_hash.update(response.raw_response.content)
-
-#         # Return the HEX digest of the hash object
-#         return sha256_hash.hexdigest()
-
-#     except requests.RequestException as e:
-#         print(f"An error occurred: {e}")
-#         return None
-
-# def is_exact_duplicate(checksum):
-#     '''
-#     Uses checksum to determine if the computed checksum has been encountered before. If so, it is an
-#     exact duplicate and should be skipped. If it isn't, add it to SAVE. Due to the way shelves work,
-#     we must manually reassign the set to update it.
-#     '''
-    
-#     with lock:
-#         if 'checksums' not in SAVE:
-#             SAVE['checksums'] = set()
-        
-#         saved_checksums = SAVE['checksums']
-
-#         if checksum not in saved_checksums:
-#             saved_checksums.add(checksum)
-#             SAVE['checksums'] = saved_checksums
-#             SAVE.sync()
-#             return False
-        
-#         return True
-
 if __name__ == "__main__":
-    print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
-    print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
-    print(compute_checksum('https://cs.ics.uci.edu/'))
+    # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
+    # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
+    # print(compute_checksum('https://cs.ics.uci.edu/'))
     print(is_valid("https://gitlab-cs142a-s23.ics.uci.edu/users/sign_in"))
