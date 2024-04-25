@@ -10,6 +10,7 @@ class Config(object):
         self.threads_count = int(config["LOCAL PROPERTIES"]["THREADCOUNT"])
         self.save_file = config["LOCAL PROPERTIES"]["SAVE"]
         self.robot_save_file = config["LOCAL PROPERTIES"]["ROBOTSAVE"]
+        self.checksums_save_file = config["LOCAL PROPERTIES"]["CHECKSUMSSAVE"]
 
         self.host = config["CONNECTION"]["HOST"]
         self.port = int(config["CONNECTION"]["PORT"])
