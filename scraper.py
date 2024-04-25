@@ -36,7 +36,7 @@ def extract_next_links(url, resp, robot: Robots):
         return hyperlink_list
     
     if resp.status >=300:
-        if "Location" in resp.raw_response.headers:
+        if "Location" in resp.headers:
             return [urljoin(resp.url, resp.headers['Location'])]
     
     # checking for any sitemap links
