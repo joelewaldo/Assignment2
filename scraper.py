@@ -8,17 +8,17 @@ import hashlib
 import threading
 
 ROBOT = Robots()
-SAVE = shelve.open(self.config.save_file)
-lock = threading.Lock()
+SAVE = shelve.open(self.config.checksums_save_file)
+lock = threading.RLock()
 
 def scraper(url, resp):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
 
-    links = extract_next_links(url, resp)
+    links = extract_next_links(resp.url, resp)
 
     # Compute the checksum of the current document here using url/resp
-    checksum = compute_checksum(url)
+    checksum = compute_checksum(resp)
 
      # Then we want to add the link to res only if the computed checksum isn't an exact duplicate
     res = [link for link in links if is_valid(link) and not is_exact_duplicate(checksum)] + ROBOT.sitemaps(resp.url)
@@ -92,22 +92,18 @@ def is_valid(url):
         print ("TypeError for ", parsed)
         raise
 
-def compute_checksum(url):
+def compute_checksum(response):
     '''
     Computes the checksum of the given document passed in as url by using a SHA-256 hash on
     the content of the url. Saves it to SAVE
     '''
     
     try:
-        # Send a GET request to the URL
-        response = requests.get(url)
-        response.raise_for_status()  # Raises an HTTPError for bad responses
-
         # Create a new SHA-256 hash object
         sha256_hash = hashlib.sha256()
 
         # Update the hash object with the bytes of the content
-        sha256_hash.update(response.content)
+        sha256_hash.update(response.raw_response.content)
 
         # Return the HEX digest of the hash object
         return sha256_hash.hexdigest()
