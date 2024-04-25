@@ -32,15 +32,15 @@ class SimHash:
         url = response.url
 
         if self.hashes:
-            for url, saved_hash in self.hashes:
+            for url, saved_hash in self.hashes.items():
                 if self._compare_hashes(page_hash, saved_hash) >= self.config.similarity_threshold:
-                    return False
-            return True
+                    return True
+            return False
         
         self.hashes[url] = page_hash
         self.save[url] = page_hash
         self.save.sync()
-        return True
+        return False
             
 
 

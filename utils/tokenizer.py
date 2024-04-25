@@ -30,7 +30,7 @@ def tokenize_url_content(response) -> list[str]:
     currentWord = ""
     
     try:
-        soup = BeautifulSoup(response.text, 'html.parser')
+        soup = BeautifulSoup(response.raw_response.text, 'html.parser')
         text = soup.get_text()
         
         for character in text:

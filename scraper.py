@@ -1,11 +1,10 @@
 import re
 from crawler.robots import Robots
-from crawler.checksums import Checksums
 from urllib.parse import urlparse
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
-def scraper(url, resp, robot: Robots, checksums: Checksums):
+def scraper(url, resp, robot: Robots):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
 
@@ -15,8 +14,7 @@ def scraper(url, resp, robot: Robots, checksums: Checksums):
         return sitemaps
 
     links = extract_next_links(url, resp)
-    checksum = checksums.compute_checksum(resp)
-    res = [link for link in links if is_valid(link, robot) and not checksums.is_exact_duplicate(checksum)] + robot.sitemaps(resp.url)
+    res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
 
     return res
 
