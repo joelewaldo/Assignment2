@@ -49,6 +49,41 @@ def tokenize_url_content(response) -> list[str]:
     
     return tokens
 
+def tokenize_from_file(textFilePath: str) -> list[str]:
+    """
+    Runtime Complexity: O(n) where n is the number of bytes in the text file.
+
+    Reads in a text file and returns a list of tokens in that file.
+    A token is a sequence of alphanumeric characters, independent of capitalization.
+
+    :param textFilePath: Path to the text file to be read.
+    :return: List of tokens in that file.
+    """
+    
+    tokens = []
+    currentWord = ""
+    try: 
+        with open(textFilePath, "r", encoding="utf-8") as file:
+            character = file.read(1)
+            while character:
+                if _isAlnum(character):
+                    currentWord += character.lower()
+                else:
+                    if currentWord:
+                        tokens.append(currentWord)
+                    currentWord = ""
+                character = file.read(1)
+        if currentWord:
+            tokens.append(currentWord)
+    except FileNotFoundError:
+        return []
+    except NotADirectoryError:
+        return []
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+        return []
+    return tokens
+
 def computeWordFrequencies(tokenList: list[str]) -> dict[str, int]:
     """
     Compute the frequency of each token.
