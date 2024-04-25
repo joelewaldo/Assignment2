@@ -38,7 +38,7 @@ class Worker(Thread):
 
             resp = download(tbd_url, self.config, self.logger)
 
-            if resp.headers and resp.headers['content-length'] and float(resp.headers['content-length']) > self.config.max_file_size * 1048576:
+            if resp and resp.headers and resp.headers['content-length'] and float(resp.headers['content-length']) > self.config.max_file_size * 1048576:
                 self.logger.info(f"Skipping {tbd_url}. File size threshold exceeded {self.config.max_file_size * 1048576} with {float(resp.headers['content-length'])}")
                 continue
 
