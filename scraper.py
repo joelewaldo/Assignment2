@@ -13,11 +13,11 @@ def scraper(url, resp, robot: Robots):
         if resp and resp.raw_response and resp.raw_response.content:
             return robot.parse_sitemap(resp.raw_response.content)
 
-    links = extract_next_links(url, resp, robot)
+    links = extract_next_links(url, resp)
     res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
     return res
 
-def extract_next_links(url, resp, robot: Robots):
+def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
