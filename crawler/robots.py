@@ -79,11 +79,19 @@ class Robots:
         return sitemaps
     return []
 
-  def parse_sitemap(self, xml_content) -> list[str]:
+  def parse_sitemap(self, resp) -> list[str]:
     """Parses a sitemap and returns a list of URLs associated with it."""
-    soup = BeautifulSoup(xml_content, 'xml')
-    urls = soup.find_all('loc') 
-    return [url.text for url in urls]
+    if resp.url.lower().endswith('.xml'):
+      if resp and resp.raw_response and resp.raw_response.content:
+        xml_content = resp.raw_response.content
+        soup = BeautifulSoup(xml_content, 'xml')
+        urls = soup.find_all('loc') 
+
+        self.logger.info(
+                    f"Found {len(urls)} from {resp.url}")
+
+        return [url.text for url in urls]
+    return []
   
   def _getBaseUrl(self, url):
     """Extract the base URL from the given URL."""
