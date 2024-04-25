@@ -38,7 +38,6 @@ def extract_next_links(url, resp, robot: Robots):
     if resp.status >=300:
         if "Location" in resp.headers:
             return [urljoin(resp.url, resp.headers['Location'])]
-
     
     # checking for any sitemap links
     if resp.url.lower().endswith('.xml'):
