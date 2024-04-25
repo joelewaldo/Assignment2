@@ -9,9 +9,9 @@ def scraper(url, resp, robot: Robots):
     # print("++++++++(Scraper.py) resp: HERE", resp)
 
     # checking for any sitemap links
-    if resp.url.lower().endswith('.xml'):
-        if resp and resp.raw_response and resp.raw_response.content:
-            return robot.parse_sitemap(resp.raw_response.content)
+    sitemaps = robot.parse_sitemap(resp)
+    if sitemaps:
+        return sitemaps
 
     links = extract_next_links(url, resp)
     res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
