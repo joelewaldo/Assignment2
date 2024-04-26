@@ -1,5 +1,6 @@
 from utils.tokenizer import tokenize_url_content, computeWordFrequencies
 from utils import get_logger
+from threading import RLock
 import os
 import shelve
 import hashlib
@@ -8,6 +9,7 @@ class SimHash:
     def __init__(self, config, restart):
         self.logger = get_logger("Simhash", "Simhash")
         self.config = config
+        self.lock = RLock
         self.hashes: dict[str, str] = {}
         
         if not os.path.exists(self.config.simhash_save_file) and not restart:
@@ -31,15 +33,16 @@ class SimHash:
         page_hash = self._hashify(page_hash)
         url = response.url
 
-        if self.hashes:
-            for url, saved_hash in self.hashes.items():
-                if self._compare_hashes(page_hash, saved_hash) >= self.config.similarity_threshold:
-                    return True
-            return False
-        
-        self.hashes[url] = page_hash
-        self.save[url] = page_hash
-        self.save.sync()
+        with self.lock:
+            if self.hashes:
+                for url, saved_hash in self.hashes.items():
+                    if self._compare_hashes(page_hash, saved_hash) >= self.config.similarity_threshold:
+                        return True
+                return False
+            
+            self.hashes[url] = page_hash
+            self.save[url] = page_hash
+            self.save.sync()
         return False
             
 
@@ -87,6 +90,9 @@ class SimHash:
         same_bits = mask & same_bits
 
         return bin(same_bits).count('1') / bit_length
+
+    def __del__(self):
+        self.save.close()
      
 
 if __name__ == "__main__":
