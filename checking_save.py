@@ -70,7 +70,7 @@ class SaveChecker:
         urls = [url_tuple[0] for url_tuple in self.frontier_save.values()]
 
         for url in urls:
-            if not url in self.skip_save['skipped']:
+            if not url in self.skip_save["skipped"]:
                 normalized_url = self._normalize_url(url)
                 unique_urls.add(normalized_url)
         return len(unique_urls)

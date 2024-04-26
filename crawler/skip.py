@@ -31,9 +31,7 @@ class Skip:
 
     def _parse_save_file(self):
         self.skip_set = self.save
-        self.logger.info(
-            f"Found {len(self.skip_set)} skipped urls in the save file."
-        )
+        self.logger.info(f"Found {len(self.skip_set)} skipped urls in the save file.")
 
     def add_url(self, url):
         with self.lock:
