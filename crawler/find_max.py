@@ -5,7 +5,7 @@ import os
 # May not need
 import threading
 
-class Max:
+class FindMax:
   def __init__(self, config, restart):
     self.config = config
     self.userAgent = config.user_agent
