@@ -47,10 +47,12 @@ class Worker(Thread):
 
             if not prep_download(tbd_url, self.config, self.logger):
                 continue
-                
+
             resp = download(tbd_url, self.config, self.logger)
 
-            if not self.robot.url_ends_with_xml(tbd_url) and self.simhash.check_page_is_similar(resp):
+            if not self.robot.url_ends_with_xml(tbd_url) and self.simhash.check_page_is_similar(
+                resp
+            ):
                 self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
                 continue
 
