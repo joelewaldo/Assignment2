@@ -12,7 +12,7 @@ def scraper(url, resp, robot: Robots):
     # checking for any sitemap links
     sitemaps = robot.parse_sitemap(resp)
     if sitemaps:
-        return sitemaps
+        return [link for link in sitemaps if is_valid(link, robot)]
 
     links = extract_next_links(url, resp)
     res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
@@ -106,9 +106,8 @@ def is_valid(url, robot: Robots):
         print("TypeError for ", parsed)
         raise
 
-
 if __name__ == "__main__":
     # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
     # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
     # print(compute_checksum('https://cs.ics.uci.edu/'))
-    print(is_valid("https://gitlab-cs142a-s23.ics.uci.edu/users/sign_in"))
+    print(is_valid2("https://wics.ics.uci.edu/wp-content/uploads/2021/04/Screenshot-586.png"))

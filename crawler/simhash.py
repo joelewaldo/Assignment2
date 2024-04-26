@@ -32,18 +32,28 @@ class SimHash:
         page_hash = self._hashify(page_hash)
         url = response.url
 
-        with self.lock:
+         with self.lock:
             if self.hashes:
+                self.logger.info(f"SELF.HASHES = {self.hashes}")
                 for url, saved_hash in self.hashes.items():
                     if (
                         self._compare_hashes(page_hash, saved_hash)
                         >= self.config.similarity_threshold
                     ):
+                        self.logger.info(f"{resp_url} IS SIMILAR TO {url} WITH PERCENTAGE: {self._compare_hashes(page_hash, saved_hash)}")
                         return True
+                    self.logger.info(f"{resp_url} NOT SIMILAR TO {url} WITH PERCENTAGE: {self._compare_hashes(page_hash, saved_hash)}")
+                    
+                self.hashes[resp_url] = page_hash
+                self.save[resp_url] = page_hash
+                self.logger.info(f"SimHash of {resp_url} is --> {page_hash}")
+                self.save.sync()
                 return False
 
-            self.hashes[url] = page_hash
-            self.save[url] = page_hash
+            self.hashes[resp_url] = page_hash
+            self.save[resp_url] = page_hash
+            self.logger.info(f"SimHash of {resp_url} is --> {page_hash}")
+
             self.save.sync()
         return False
 
