@@ -1,17 +1,9 @@
-from urllib.robotparser import RobotFileParser
-from urllib.parse import urlparse
-from bs4 import BeautifulSoup
-from utils.download import download
-from utils import get_logger, get_urlhash, normalize
+from utils import get_logger
 from utils.tokenizer import tokenize_url_content
 import shelve
 import os
-import hashlib
 # May not need
 import threading
-
-# May not need
-lock = threading.RLock()
 
 class Max:
   def __init__(self, config, restart):
@@ -19,6 +11,7 @@ class Max:
     self.userAgent = config.user_agent
     self.logger = get_logger("Max", "Max")
     self.curr_max: dict[str, str | int] = {}
+    self.lock = threading.RLock()
 
     # save file stuff down here
     if not os.path.exists(self.config.max_save_file) and not restart:
@@ -61,16 +54,20 @@ class Max:
 
     word_count = len(tokenize_url_content(resp))
 
-    if word_count > self.curr_max['max_words']:
-        self.curr_max['url'] = url
-        self.curr_max['max_words'] = word_count
-        self.logger.info(f"Updated max words - New URL: {self.curr_max['url']}, New max words: {self.curr_max['max_words']}")
-    
-        self.save = self.curr_max
-        self.save.sync()
-        return True
+    with self.lock:
+      if word_count > self.curr_max['max_words']:
+          self.curr_max['url'] = url
+          self.curr_max['max_words'] = word_count
+          self.logger.info(f"Updated max words - New URL: {self.curr_max['url']}, New max words: {self.curr_max['max_words']}")
+      
+          self.save = self.curr_max
+          self.save.sync()
+          return True
     
     return False
+  
+  def __del__(self):
+    self.save.close()
 
 if __name__ == "__main__":
   pass

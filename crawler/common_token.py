@@ -2,7 +2,7 @@ import os
 import shelve
 from bs4 import BeautifulSoup
 from utils import get_logger
-
+from threading import RLock
 
 stop_words = {
     'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', "aren't", 'as', 'at',
@@ -29,6 +29,7 @@ class Token:
         self.logger = get_logger("Token", "Token")
         self.config = config
         self.counter: dict[str, int] = {}
+        self.lock = RLock
         
         if not os.path.exists(self.config.token_save_file) and not restart:
             # Save file does not exist, but request to load save.
@@ -46,15 +47,16 @@ class Token:
             self.counter = self.save
 
     def analyze_response(self, resp):
-        try:
-            res = self._tokenize_url_content(resp)
-            self._computeWordFrequencies(res)
-            self.logger.info(
-                f"Successfully computed word frequencies url: {resp.url}."
-            )     
-        except Exception as e:
-            self.logger.error(
-                f"Something went wrong with this url: {resp.url}. -- Error: {e}")
+        with self.lock:
+            try:
+                res = self._tokenize_url_content(resp)
+                self._computeWordFrequencies(res)
+                self.logger.info(
+                    f"Successfully computed word frequencies url: {resp.url}."
+                )     
+            except Exception as e:
+                self.logger.error(
+                    f"Something went wrong with this url: {resp.url}. -- Error: {e}")
         
         
     def _isAlnum(self, character: str) -> bool:
@@ -116,17 +118,18 @@ class Token:
         Returns:
         - dict[str, int]: Dictionary mapping each token to its frequency count.
         """
-
-        try:
-            for token in tokenList:
-                if token in self.counter:
-                    self.counter[token] += 1
-                    self.save[token] += 1
-                else:
-                    self.counter[token] = 1
-                    self.save[token] = 1
-                self.save.sync()
-        except Exception as e:
-            print(f"An unexpected error occurred while updating save file: {e}")
+        with self.lock:
+            try:
+                for token in tokenList:
+                    if token in self.counter:
+                        self.counter[token] += 1
+                        self.save[token] += 1
+                    else:
+                        self.counter[token] = 1
+                        self.save[token] = 1
+                    self.save.sync()
+            except Exception as e:
+                print(f"An unexpected error occurred while updating save file: {e}")
         
-    
+    def __del__(self):
+        self.save.close()
