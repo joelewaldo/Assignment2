@@ -8,12 +8,15 @@ import time
 
 
 class Worker(Thread):
-    def __init__(self, worker_id, config, frontier, politeness, robot):
+    def __init__(self, worker_id, config, frontier, politeness, robot, simhash, token, m_max):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
         self.politeness = politeness
         self.robot = robot
+        self.simhash = simhash
+        self.max = m_max
+        self.token = token
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
@@ -38,9 +41,18 @@ class Worker(Thread):
 
             resp = download(tbd_url, self.config, self.logger)
 
-            if resp.headers and resp.headers['content-length'] and float(resp.headers['content-length']) > self.config.max_file_size * 1048576:
-                self.logger.info(f"Skipping {tbd_url}. File size threshold exceeded {self.config.max_file_size * 1048576} with {float(resp.headers['content-length'])}")
+            if resp and resp.raw_response and resp.raw_response.headers and resp.raw_response.headers.get('content-length') and float(resp.raw_response.headers.get('content-length')) > self.config.max_file_size * 1048576:
+                self.logger.info(f"Skipping {tbd_url}. File size threshold exceeded {self.config.max_file_size * 1048576} with {float(resp.raw_response.headers.get('content-length'))}")
                 continue
+
+            if self.simhash.check_page_is_similar(resp):
+                self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
+                continue
+            
+            if (self.max.found_new_max(tbd_url, resp)):
+                self.logger.info(f"Found new max. Now storing: {tbd_url}")
+
+            self.token.analyze_response(resp)
 
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "

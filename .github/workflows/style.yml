@@ -1,0 +1,60 @@
+name: Python Code Style Enforcement
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Ensures history is available for branch creation and diff
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: Install Black
+        run: |
+          python -m pip install --upgrade pip
+          pip install black
+
+      - name: Create and switch to a new branch
+        run: |
+          BRANCH_NAME="format-branch-${GITHUB_SHA}"
+          git checkout -b $BRANCH_NAME
+        shell: bash
+
+      - name: Format code with Black and check for changes
+        run: |
+          black .
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes in formatting."
+            exit 0
+          else
+            echo "Formatting changes detected."
+            git config --global user.email "action@github.com"
+            git config --global user.name "GitHub Action"
+            git add .
+            git commit -m "Apply Black Formatting"
+            git push origin HEAD
+          fi
+        shell: bash
+
+      - name: Open a pull request
+        if: success()
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          destination_branch: "master"
+          source_branch: "${{ env.BRANCH_NAME }}"
+          pr_title: "Apply Black Formatting"
+          pr_body: "This PR applies Python Black formatting rules."
+          pr_label: "formatting"

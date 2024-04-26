@@ -3,6 +3,7 @@ from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from utils.download import download
 from utils import get_logger, get_urlhash, normalize
+from threading import RLock
 import shelve
 import os
 
@@ -11,6 +12,7 @@ class Robots:
     self.config = config
     self.userAgent = config.user_agent
     self.logger = get_logger("Robots", "Robots")
+    self.lock = RLock()
 
     self._robots: dict[str, RobotFileParser | None] = {}
 
@@ -79,11 +81,22 @@ class Robots:
         return sitemaps
     return []
 
-  def parse_sitemap(self, xml_content) -> list[str]:
+  def parse_sitemap(self, resp) -> list[str]:
     """Parses a sitemap and returns a list of URLs associated with it."""
-    soup = BeautifulSoup(xml_content, 'xml')
-    urls = soup.find_all('loc') 
-    return [url.text for url in urls]
+    if resp.url.lower().endswith('.xml'):
+      self.logger.info(
+                    f"URL: {resp.url} ends with xml.",
+                    )
+      if resp and resp.raw_response and resp.raw_response.content:
+        xml_content = resp.raw_response.content
+        soup = BeautifulSoup(xml_content, 'xml')
+        urls = soup.find_all('loc') 
+
+        self.logger.info(
+                    f"Found {len(urls)} from {resp.url}")
+
+        return [url.text for url in urls]
+    return []
   
   def _getBaseUrl(self, url):
     """Extract the base URL from the given URL."""
@@ -97,38 +110,41 @@ class Robots:
 
   def _addSite(self, url):
     """Add site to robots dictionary if it's not already present."""
-    hashedUrl = self._getHashUrl(url)
-
-    if not hashedUrl in self._robots:
-      self._checkRobot(self._getBaseUrl(url))
+    with self.lock:
+      hashedUrl = self._getHashUrl(url)
+      if not hashedUrl in self._robots:
+        self._checkRobot(self._getBaseUrl(url))
 
   def _checkRobot(self, url):
     """Read and parse the robots.txt for the specified base URL, ignoring SSL verification when neccessary."""
     # todo: add more error handling here
-    robot_url = f"{url}/robots.txt"
+    with self.lock:
+      robot_url = f"{url}/robots.txt"
 
-    res = download(robot_url, self.config, logger=self.logger)
+      res = download(robot_url, self.config, logger=self.logger)
 
-    urlhash = self._getHashUrl(url)
+      urlhash = self._getHashUrl(url)
 
-    if not res or not res.raw_response:
-      self.logger.error(f"Failed to download robots.txt from {robot_url}.")
-      self.save[urlhash] = None
-      self._robots[urlhash] = None
+      if not res or not res.raw_response:
+        self.logger.error(f"Failed to download robots.txt from {robot_url}.")
+        self.save[urlhash] = None
+        self._robots[urlhash] = None
+        # "saves" to save file
+        self.save.sync()
+        return
+      
+      self.logger.info(
+                  f"Downloaded {robot_url}, status <{res.status}>, "
+                  f"using cache {self.config.cache_server}.")
+
+      robotParser = RobotFileParser()
+      robotParser.parse(res.raw_response.text.splitlines())
+      self._robots[urlhash] = robotParser
+      self.save[urlhash] = robotParser
       # "saves" to save file
       self.save.sync()
-      return
-    
-    self.logger.info(
-                f"Downloaded {robot_url}, status <{res.status}>, "
-                f"using cache {self.config.cache_server}.")
-
-    robotParser = RobotFileParser()
-    robotParser.parse(res.raw_response.text.splitlines())
-    self._robots[urlhash] = robotParser
-    self.save[urlhash] = robotParser
-    # "saves" to save file
-    self.save.sync()
+  def __del__(self):
+    self.save.close()
 
 if __name__ == "__main__":
   from configparser import ConfigParser
