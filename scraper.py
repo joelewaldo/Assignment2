@@ -106,6 +106,7 @@ def is_valid(url, robot: Robots):
         print("TypeError for ", parsed)
         raise
 
+
 if __name__ == "__main__":
     # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
     # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
