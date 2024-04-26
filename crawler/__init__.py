@@ -6,6 +6,7 @@ from crawler.politeness import Politeness
 from crawler.simhash import SimHash
 from crawler.find_max import FindMax
 from crawler.common_token import Token
+from crawler.skip import Skip
 
 
 class Crawler(object):
@@ -20,6 +21,7 @@ class Crawler(object):
         simhash_factory=SimHash,
         token_factory=Token,
         max_factory=FindMax,
+        skip_factory=Skip,
     ):
         self.config = config
         self.logger = get_logger("CRAWLER")
@@ -31,6 +33,7 @@ class Crawler(object):
         self.simhash = simhash_factory(config, restart)
         self.token = token_factory(config, restart)
         self.max = max_factory(config, restart)
+        self.skip = skip_factory(config, restart)
 
     def start_async(self):
         self.workers = [
@@ -43,6 +46,7 @@ class Crawler(object):
                 self.simhash,
                 self.token,
                 self.max,
+                self.skip,
             )
             for worker_id in range(self.config.threads_count)
         ]
