@@ -51,9 +51,7 @@ class Worker(Thread):
             resp = download(tbd_url, self.config, self.logger)
 
             if not (resp and resp.raw_response):
-                self.logger.info(
-                    f"Skipping {tbd_url}. Page is empty."
-                )
+                self.logger.info(f"Skipping {tbd_url}. Page is empty.")
                 continue
 
             if (
