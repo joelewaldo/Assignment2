@@ -15,7 +15,7 @@ class SaveChecker:
 
         else:  # Load existing save file, or create one if it does not exist.
             self.frontier_save = shelve.open(self.frontier_save_file)
-        
+
         if not os.path.exists(self.max_save_file):
             # Save file does not exist, but request to load save.
             print("max_save_file does not exist")
@@ -23,7 +23,7 @@ class SaveChecker:
 
         else:  # Load existing save file, or create one if it does not exist.
             self.max_save = shelve.open(self.max_save_file)
-        
+
         if not os.path.exists(self.token_save_file):
             # Save file does not exist, but request to load save.
             print("token_save_file does not exist")
@@ -33,7 +33,7 @@ class SaveChecker:
             self.token_save = shelve.open(self.token_save_file)
 
     def longest_page(self) -> tuple[str, str]:
-        return (self.max_save['url'], self.max_save['max_words'])
+        return (self.max_save["url"], self.max_save["max_words"])
 
     def common_words(self):
         # Sorting the dictionary by value and storing it as a list of tuples (key, value)
@@ -50,7 +50,9 @@ class SaveChecker:
         with open("Answer.txt", "w") as file:
             file.write("Question 2: \n")
             longest_page = self.longest_page()
-            file.write(f"     Longest page url is {longest_page[0]} with {longest_page[1]} words.\n")
+            file.write(
+                f"     Longest page url is {longest_page[0]} with {longest_page[1]} words.\n"
+            )
             file.write("Question 3: \n")
             question_3 = self.common_words()
             for token, freq in question_3.items():
