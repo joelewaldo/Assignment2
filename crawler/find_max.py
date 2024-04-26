@@ -54,7 +54,7 @@ class FindMax:
         when a new max has been found.
         """
         word_count = get_word_count_from_response(resp)
-        
+
         if not word_count:
             return False
 

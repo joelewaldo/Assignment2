@@ -6,6 +6,7 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from urllib.parse import urlparse, urlunparse
 
+
 class SaveChecker:
     def __init__(self, frontier_save_file, max_save_file, token_save_file):
         self.frontier_save_file = frontier_save_file
@@ -19,7 +20,7 @@ class SaveChecker:
 
         else:  # Load existing save file, or create one if it does not exist.
             self.frontier_save = shelve.open(self.frontier_save_file)
-        
+
         if not os.path.exists(self.max_save_file):
             # Save file does not exist, but request to load save.
             print("max_save_file does not exist")
@@ -27,7 +28,7 @@ class SaveChecker:
 
         else:  # Load existing save file, or create one if it does not exist.
             self.max_save = shelve.open(self.max_save_file)
-        
+
         if not os.path.exists(self.token_save_file):
             # Save file does not exist, but request to load save.
             print("token_save_file does not exist")
@@ -37,7 +38,7 @@ class SaveChecker:
             self.token_save = shelve.open(self.token_save_file)
 
     def longest_page(self) -> tuple[str, str]:
-        return (self.max_save['url'], self.max_save['max_words'])
+        return (self.max_save["url"], self.max_save["max_words"])
 
     def common_words(self):
         # Sorting the dictionary by value and storing it as a list of tuples (key, value)
@@ -49,9 +50,9 @@ class SaveChecker:
         else:
             # Return the first 50 elements as a dictionary
             return dict(mostFrequent[:50])
-    
+
     def _normalize_url(self, url):
-        """ Normalize a URL by removing the fragment part """
+        """Normalize a URL by removing the fragment part"""
         parsed_url = urlparse(url)
         return urlunparse(parsed_url._replace(fragment=""))
 
@@ -70,7 +71,7 @@ class SaveChecker:
 
         for url in urls:
             parsed_url = urlparse(url)
-            if parsed_url.netloc.endswith('ics.uci.edu'):
+            if parsed_url.netloc.endswith("ics.uci.edu"):
                 # Extract the subdomain part and normalize to lowercase
                 subdomain = parsed_url.netloc.lower()
                 # Use a set for the path to ensure uniqueness
@@ -105,9 +106,11 @@ class SaveChecker:
         self.max_save.close()
         self.token_save.close()
 
+
 def main(config: Config):
     checker = SaveChecker(config.save_file, config.max_save_file, config.token_save_file)
     checker.generate_answer()
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
