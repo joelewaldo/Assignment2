@@ -95,7 +95,7 @@ class Robots:
 
                 return [url.text for url in urls]
         return []
-    
+
     def url_ends_with_xml(self, url) -> bool:
         if url.lower().endswith(".xml"):
             return True
