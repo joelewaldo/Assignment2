@@ -1,51 +1,201 @@
+Question 1: 
+     There are 15020 unique pages.
+Question 2: 
+     Longest page url is http://www.ics.uci.edu/~wjohnson/BIDA/Ch8/cowabortiondata.txt with 52584 words.
 Question 3: 
-     <s> -> <112>
-     <science> -> <109>
-     <statistics> -> <88>
-     <research> -> <86>
-     <2022> -> <71>
-     <uci> -> <67>
-     <data> -> <62>
-     <graduate> -> <58>
-     <faculty> -> <58>
-     <students> -> <53>
-     <news> -> <53>
-     <computer> -> <52>
-     <school> -> <50>
-     <bren> -> <49>
-     <instatistics> -> <48>
-     <professor> -> <45>
-     <ofstatistics> -> <42>
-     <donald> -> <42>
-     <d> -> <42>
-     <ph> -> <41>
-     <student> -> <41>
-     <course> -> <41>
-     <edu> -> <38>
-     <b> -> <38>
-     <department> -> <38>
-     <ofinformation> -> <38>
-     <undergraduate> -> <37>
-     <methods> -> <37>
-     <master> -> <35>
-     <ofdata> -> <35>
-     <degrees> -> <33>
-     <sciences> -> <32>
-     <opportunities> -> <32>
-     <program> -> <31>
-     <directory> -> <31>
-     <stats> -> <31>
-     <september> -> <30>
-     <949> -> <29>
-     <824> -> <29>
-     <contact> -> <28>
-     <statistical> -> <28>
-     <current> -> <28>
-     <listings> -> <27>
-     <seminars> -> <26>
-     <thedepartment> -> <24>
-     <indata> -> <23>
-     <ics> -> <23>
-     <university> -> <22>
-     <resources> -> <21>
-     <policies> -> <21>
+     <s> -> <40412>
+     <0> -> <35356>
+     <research> -> <27024>
+     <1> -> <23134>
+     <2> -> <21245>
+     <uci> -> <18974>
+     <b> -> <18176>
+     <2022> -> <17790>
+     <d> -> <17207>
+     <ofthe> -> <15592>
+     <student> -> <15295>
+     <2021> -> <14695>
+     <2020> -> <13953>
+     <science> -> <13757>
+     <3> -> <13752>
+     <data> -> <13542>
+     <ics> -> <13409>
+     <m> -> <13391>
+     <2018> -> <13139>
+     <graduate> -> <12839>
+     <2019> -> <12696>
+     <computer> -> <12386>
+     <2017> -> <12073>
+     <e> -> <11959>
+     <t> -> <11757>
+     <2016> -> <11496>
+     <2015> -> <11249>
+     <engineering> -> <11063>
+     <undergraduate> -> <10981>
+     <students> -> <10951>
+     <news> -> <10942>
+     <september> -> <10882>
+     <4> -> <10877>
+     <5> -> <10537>
+     <policies> -> <10101>
+     <software> -> <10076>
+     <inthe> -> <10034>
+     <n> -> <9748>
+     <informatics> -> <9658>
+     <contact> -> <9635>
+     <o> -> <9426>
+     <school> -> <9320>
+     <edu> -> <8963>
+     <p> -> <8859>
+     <information> -> <8720>
+     <may> -> <8651>
+     <faculty> -> <8457>
+     <october> -> <8351>
+     <june> -> <8234>
+     <l> -> <8152>
+Question 4: 
+     accessibility.ics.uci.edu, 6
+     acoi.ics.uci.edu, 109
+     aiclub.ics.uci.edu, 2
+     archive-beta.ics.uci.edu, 2
+     archive.ics.uci.edu, 1395
+     asterix.ics.uci.edu, 8
+     asterixdb.ics.uci.edu, 3
+     auge.ics.uci.edu, 2
+     awareness.ics.uci.edu, 1
+     betapro.proteomics.ics.uci.edu, 2
+     calendar.ics.uci.edu, 1
+     cbcl.ics.uci.edu, 21
+     cdb.ics.uci.edu, 24
+     cert.ics.uci.edu, 11
+     cgvw.ics.uci.edu, 1
+     checkmate.ics.uci.edu, 1
+     chenli.ics.uci.edu, 14
+     cherry.ics.uci.edu, 1
+     chime.ics.uci.edu, 1
+     circadiomics.ics.uci.edu, 6
+     closeup.ics.uci.edu, 1
+     cloudberry.ics.uci.edu, 3
+     cml.ics.uci.edu, 164
+     cocoa-krispies.ics.uci.edu, 1
+     code.ics.uci.edu, 20
+     codeexchange.ics.uci.edu, 1
+     computableplant.ics.uci.edu, 82
+     contact.ics.uci.edu, 1
+     contact14.ics.uci.edu, 1
+     coronavirustwittermap.ics.uci.edu, 1
+     cradl.ics.uci.edu, 32
+     create.ics.uci.edu, 18
+     cwicsocal18.ics.uci.edu, 13
+     cyberclub.ics.uci.edu, 16
+     cybert.ics.uci.edu, 7
+     dejavu.ics.uci.edu, 1
+     dgillen.ics.uci.edu, 32
+     duke.ics.uci.edu, 1
+     duttgroup.ics.uci.edu, 109
+     dynamo.ics.uci.edu, 1
+     elms.ics.uci.edu, 1
+     emj.ics.uci.edu, 43
+     esl.ics.uci.edu, 1
+     evoke.ics.uci.edu, 7
+     flamingo.ics.uci.edu, 27
+     fr.ics.uci.edu, 8
+     frost.ics.uci.edu, 1
+     futurehealth.ics.uci.edu, 123
+     gonet.genomics.ics.uci.edu, 1
+     grape.ics.uci.edu, 47
+     graphics.ics.uci.edu, 5
+     graphmod.ics.uci.edu, 1
+     hack.ics.uci.edu, 2
+     hai.ics.uci.edu, 6
+     hana.ics.uci.edu, 4
+     hobbes.ics.uci.edu, 1
+     hombao.ics.uci.edu, 2
+     honors.ics.uci.edu, 2
+     hpi.ics.uci.edu, 9
+     i-sensorium.ics.uci.edu, 6
+     iasl.ics.uci.edu, 14
+     ibook.ics.uci.edu, 1
+     ieee.ics.uci.edu, 1
+     industryshowcase.ics.uci.edu, 24
+     informatics.ics.uci.edu, 2
+     informatics.mt-live.ics.uci.edu, 1
+     ipf.ics.uci.edu, 3
+     ipubmed.ics.uci.edu, 2
+     isg.ics.uci.edu, 170
+     jgarcia.ics.uci.edu, 2
+     jujube.ics.uci.edu, 2
+     kdd.ics.uci.edu, 3
+     keys.ics.uci.edu, 1
+     labbie.ics.uci.edu, 1
+     luci.ics.uci.edu, 20
+     mailman.ics.uci.edu, 3
+     malek.ics.uci.edu, 1
+     map125.ics.uci.edu, 1
+     mapgrid.ics.uci.edu, 1
+     mcs.ics.uci.edu, 82
+     mdogucu.ics.uci.edu, 7
+     mds.ics.uci.edu, 21
+     metaviz.ics.uci.edu, 1
+     mhcid.ics.uci.edu, 17
+     mine10.ics.uci.edu, 1
+     mlphysics.ics.uci.edu, 14
+     mondego.ics.uci.edu, 15
+     motifmap-rna.ics.uci.edu, 1
+     motifmap.ics.uci.edu, 2
+     mse.ics.uci.edu, 3
+     mswe.ics.uci.edu, 38
+     mt-live.ics.uci.edu, 1
+     mupro.proteomics.ics.uci.edu, 2
+     nalini.ics.uci.edu, 14
+     ngs.ics.uci.edu, 1232
+     old-reactions.ics.uci.edu, 1
+     omni.ics.uci.edu, 1
+     password.ics.uci.edu, 1
+     pasteur.ics.uci.edu, 2
+     pepito.proteomics.ics.uci.edu, 1
+     perennialpolycultures.ics.uci.edu, 1
+     plrg.ics.uci.edu, 95
+     psearch.ics.uci.edu, 2
+     radicle.ics.uci.edu, 6
+     reactions.ics.uci.edu, 1
+     redmiles.ics.uci.edu, 7
+     riscit.ics.uci.edu, 3
+     sconce.ics.uci.edu, 1
+     scratch.proteomics.ics.uci.edu, 4
+     sdcl.ics.uci.edu, 244
+     se.ics.uci.edu, 1
+     seal.ics.uci.edu, 40
+     selectpro.proteomics.ics.uci.edu, 1
+     sherlock.ics.uci.edu, 8
+     sidepro.proteomics.ics.uci.edu, 1
+     sli.ics.uci.edu, 131
+     sourcerer.ics.uci.edu, 3
+     sprout.ics.uci.edu, 2
+     stairs.ics.uci.edu, 4
+     statconsulting.ics.uci.edu, 5
+     student-council.ics.uci.edu, 31
+     studentcouncil.ics.uci.edu, 22
+     support.ics.uci.edu, 3
+     swiki.ics.uci.edu, 2
+     tad.ics.uci.edu, 3
+     tastier.ics.uci.edu, 1
+     testlab.ics.uci.edu, 1
+     timesheet.ics.uci.edu, 1
+     tippersweb.ics.uci.edu, 4
+     tmbpro.ics.uci.edu, 1
+     transformativeplay.ics.uci.edu, 52
+     tutors.ics.uci.edu, 1
+     ugradforms.ics.uci.edu, 1
+     unite.ics.uci.edu, 15
+     vision.ics.uci.edu, 216
+     wics.ics.uci.edu, 718
+     wiki.ics.uci.edu, 1
+     www-db.ics.uci.edu, 19
+     www.cert.ics.uci.edu, 1
+     www.graphics.ics.uci.edu, 7
+     www.ics.uci.edu, 3091
+     www.informatics.ics.uci.edu, 1
+     www.isg.ics.uci.edu, 1
+     xtune.ics.uci.edu, 6
+     yarra.ics.uci.edu, 1

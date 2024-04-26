@@ -71,9 +71,9 @@ class SaveChecker:
 
         for url in urls:
             parsed_url = urlparse(url)
-            if parsed_url.netloc.endswith("ics.uci.edu"):
+            if parsed_url.netloc.endswith(".ics.uci.edu"):
                 # Extract the subdomain part and normalize to lowercase
-                subdomain = parsed_url.netloc.lower()
+                subdomain = parsed_url.netloc.lower().strip()
                 # Use a set for the path to ensure uniqueness
                 subdomains[subdomain].add(parsed_url.path)
 
