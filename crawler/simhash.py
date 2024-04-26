@@ -10,7 +10,7 @@ class SimHash:
     def __init__(self, config, restart):
         self.logger = get_logger("Simhash", "Simhash")
         self.config = config
-        self.lock = RLock
+        self.lock = RLock()
         self.hashes: dict[str, str] = {}
 
         if not os.path.exists(self.config.simhash_save_file) and not restart:

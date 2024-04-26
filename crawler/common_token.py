@@ -186,7 +186,7 @@ class Token:
         self.logger = get_logger("Token", "Token")
         self.config = config
         self.counter: dict[str, int] = {}
-        self.lock = RLock
+        self.lock = RLock()
 
         if not os.path.exists(self.config.token_save_file) and not restart:
             # Save file does not exist, but request to load save.
