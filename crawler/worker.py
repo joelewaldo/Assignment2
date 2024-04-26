@@ -8,13 +8,14 @@ import time
 
 
 class Worker(Thread):
-    def __init__(self, worker_id, config, frontier, politeness, robot, simhash):
+    def __init__(self, worker_id, config, frontier, politeness, robot, simhash, token):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
         self.politeness = politeness
         self.robot = robot
         self.simhash = simhash
+        self.token = token
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
@@ -46,6 +47,8 @@ class Worker(Thread):
             if self.simhash.check_page_is_similar(resp):
                 self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
                 continue
+
+            self.token.analyze_response(resp)
 
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
