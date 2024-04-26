@@ -11,7 +11,7 @@ class Config(object):
         self.save_file = config["LOCAL PROPERTIES"]["SAVE"]
         self.robot_save_file = config["LOCAL PROPERTIES"]["ROBOTSAVE"]
         self.simhash_save_file = config["LOCAL PROPERTIES"]["SIMHASHSAVE"]
-        self.checksums_save_file = config["LOCAL PROPERTIES"]["CHECKSUMSSAVE"]
+        self.token_save_file = config["LOCAL PROPERTIES"]["TOKENSAVE"]
 
         self.host = config["CONNECTION"]["HOST"]
         self.port = int(config["CONNECTION"]["PORT"])
@@ -21,6 +21,6 @@ class Config(object):
         self.time_delay = float(config["CRAWLER"]["POLITENESS"])
         self.max_retries = int(config["CRAWLER"]["MAXRETRIES"])
         self.retry_time = float(config["CRAWLER"]["RETRYTIME"])
-        self.similarity_threshhold = float(config["CRAWLER"]["SIMILARITYTHRESHHOLD"])
+        self.similarity_threshold = float(config["CRAWLER"]["SIMILARITYTHRESHOLD"])
 
         self.cache_server = None

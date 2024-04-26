@@ -32,15 +32,15 @@ class SimHash:
         url = response.url
 
         if self.hashes:
-            for url, saved_hash in self.hashes:
+            for url, saved_hash in self.hashes.items():
                 if self._compare_hashes(page_hash, saved_hash) >= self.config.similarity_threshold:
-                    return False
-            return True
+                    return True
+            return False
         
         self.hashes[url] = page_hash
         self.save[url] = page_hash
         self.save.sync()
-        return True
+        return False
             
 
 
@@ -80,7 +80,7 @@ class SimHash:
         same_bits = ~diff
 
         # using mask because the invert operator could add extra leading 1s past the original bit length
-        bit_length = max(hash1.bit_length(), hash2.bit_length())
+        bit_length = 256
         mask = (1 << bit_length) - 1
 
         # removes potential extra leading bits

@@ -82,6 +82,9 @@ class Robots:
   def parse_sitemap(self, resp) -> list[str]:
     """Parses a sitemap and returns a list of URLs associated with it."""
     if resp.url.lower().endswith('.xml'):
+      self.logger.info(
+                    f"URL: {resp.url} ends with xml.",
+                    )
       if resp and resp.raw_response and resp.raw_response.content:
         xml_content = resp.raw_response.content
         soup = BeautifulSoup(xml_content, 'xml')
