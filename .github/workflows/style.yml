@@ -23,19 +23,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install black
 
-      - name: Format code with Black
-        run: black .
-
-      - name: Check for changes
-        id: diff
+      - name: Format code with Black and check for changes
         run: |
-          git diff --exit-code
-
-      - name: Commit and push if changes
-        if: steps.diff.outcome == 'failure'
-        run: |
-          git config --global user.email "action@github.com"
-          git config --global user.name "GitHub Action"
-          git add .
-          git commit -m "Apply Black Formatting"
-          git push
+          black .
+          if git diff --exit-code; then
+            echo "No changes in formatting."
+          else
+            echo "Formatting changes detected."
+            git config --global user.email "action@github.com"
+            git config --global user.name "GitHub Action"
+            git add .
+            git commit -m "Apply Black Formatting"
+            git push
+          fi
+        shell: bash
