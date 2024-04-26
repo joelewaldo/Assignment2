@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-
+import re
 
 def _isAlnum(character: str) -> bool:
     """
@@ -120,3 +120,12 @@ def printWordFrequencies(frequencies: dict[str, int]) -> None:
     mostFrequent = sorted(frequencies, key=lambda x: frequencies[x], reverse=True)
     for token in mostFrequent:
         print(f"<{token}> -> <{frequencies[token]}>")
+
+def get_word_count_from_response(resp):
+    if resp.status == 200:
+        soup = BeautifulSoup(resp.raw_response.text, 'html.parser')
+        text = soup.get_text()
+        words = re.findall(r'\b\w+\b', text)
+        return len(words)
+    else:
+        return None

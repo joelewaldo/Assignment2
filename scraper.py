@@ -47,14 +47,19 @@ def extract_next_links(url, resp):
             return [urljoin(resp.url, resp.headers["Location"])]
 
     soup = BeautifulSoup(resp.raw_response.content, "html.parser", from_encoding="utf-8")
-    # doesn't get all the links in the page, might need to use robots.txt and sitemaps
 
     all_links = soup.find_all("a")
-    for i, link in enumerate(all_links):
-        hyperlink_list.append(link.get("href"))
+    for link in all_links:
+        href = link.get("href")
+        if href:
+            if is_relative(href):
+                href = urljoin(url, href)
+            hyperlink_list.append(href)
 
     return hyperlink_list
 
+def is_relative(url):
+    return not urlparse(url).netloc
 
 def is_valid(url, robot: Robots):
     # Decide whether to crawl this url or not.
@@ -111,4 +116,4 @@ if __name__ == "__main__":
     # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
     # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))
     # print(compute_checksum('https://cs.ics.uci.edu/'))
-    print(is_valid2("https://wics.ics.uci.edu/wp-content/uploads/2021/04/Screenshot-586.png"))
+    print(is_valid("https://wics.ics.uci.edu/wp-content/uploads/2021/04/Screenshot-586.png"))

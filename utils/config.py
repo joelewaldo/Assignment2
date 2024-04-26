@@ -24,6 +24,7 @@ class Config(object):
         self.time_delay = float(config["CRAWLER"]["POLITENESS"])
         self.max_retries = int(config["CRAWLER"]["MAXRETRIES"])
         self.retry_time = float(config["CRAWLER"]["RETRYTIME"])
+        self.low_information_value = int(config["CRAWLER"]["LOWINFORMATIONVALUE"])
         self.similarity_threshold = float(config["CRAWLER"]["SIMILARITYTHRESHOLD"])
 
         self.cache_server = None
