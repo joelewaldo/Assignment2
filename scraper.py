@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
+
 def scraper(url, resp, robot: Robots):
     # print("++++++++ (Scraper.py) url: HERE", url)
     # print("++++++++(Scraper.py) resp: HERE", resp)
@@ -17,6 +18,7 @@ def scraper(url, resp, robot: Robots):
     res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
 
     return res
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -34,49 +36,60 @@ def extract_next_links(url, resp):
     # Detect and avoid dead URLs that return a 200 status but no data (click here to see what the different HTTP status codes meanLinks to an external site.)
     hyperlink_list = []
 
-
     if resp.status == 200 and (resp.raw_response is None or not resp.raw_response.content):
         return hyperlink_list
-    
+
     if resp.status == 204 or resp.status >= 400:
         return hyperlink_list
-    
-    if resp.status >=300:
-        if "Location" in resp.raw_response.headers:
-            return [urljoin(resp.url, resp.headers['Location'])]
 
-    soup = BeautifulSoup(resp.raw_response.content, 'html.parser', from_encoding='utf-8')
+    if resp.status >= 300:
+        if "Location" in resp.raw_response.headers:
+            return [urljoin(resp.url, resp.headers["Location"])]
+
+    soup = BeautifulSoup(resp.raw_response.content, "html.parser", from_encoding="utf-8")
     # doesn't get all the links in the page, might need to use robots.txt and sitemaps
-    
-    all_links = soup.find_all('a')
+
+    all_links = soup.find_all("a")
     for i, link in enumerate(all_links):
-        hyperlink_list.append(link.get('href'))
+        hyperlink_list.append(link.get("href"))
 
     return hyperlink_list
 
+
 def is_valid(url, robot: Robots):
-    # Decide whether to crawl this url or not. 
+    # Decide whether to crawl this url or not.
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
-        
+
         if parsed.scheme not in set(["http", "https"]):
             return False
 
         domain = parsed.netloc
-        dotlist = domain.split('.')
-        if not ".".join(dotlist[-3:]) in set([".ics.uci.edu", ".cs.uci.edu", ".informatics.uci.edu", ".stat.uci.edu", "ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"]):
+        dotlist = domain.split(".")
+        if not ".".join(dotlist[-3:]) in set(
+            [
+                ".ics.uci.edu",
+                ".cs.uci.edu",
+                ".informatics.uci.edu",
+                ".stat.uci.edu",
+                "ics.uci.edu",
+                "cs.uci.edu",
+                "informatics.uci.edu",
+                "stat.uci.edu",
+            ]
+        ):
             return False
-        '''
+        """
         upvote:  1, 1
         downvote: 10
         
-        '''
+        """
 
         if not robot.can_fetch(url):
             return False
-        
+
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -85,11 +98,14 @@ def is_valid(url, robot: Robots):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso|ppsx"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$",
+            parsed.path.lower(),
+        )
 
     except TypeError:
-        print ("TypeError for ", parsed)
+        print("TypeError for ", parsed)
         raise
+
 
 if __name__ == "__main__":
     # print(compute_checksum('https://ics.uci.edu/2016/04/27/press-release-uc-irvine-launches-executive-masters-program-in-human-computer-interaction-design/'))

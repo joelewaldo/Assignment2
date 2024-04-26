@@ -18,10 +18,15 @@ class Worker(Thread):
         self.max = m_max
         self.token = token
         # basic check for requests in scraper
-        assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
-        assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
+        assert {
+            getsource(scraper).find(req) for req in {"from requests import", "import requests"}
+        } == {-1}, "Do not use requests in scraper.py"
+        assert {
+            getsource(scraper).find(req)
+            for req in {"from urllib.request import", "import urllib.request"}
+        } == {-1}, "Do not use urllib.request in scraper.py"
         super().__init__(daemon=True)
-        
+
     def run(self):
         while True:
             tbd_url = self.frontier.get_tbd_url()
@@ -41,22 +46,32 @@ class Worker(Thread):
 
             resp = download(tbd_url, self.config, self.logger)
 
-            if resp and resp.raw_response and resp.raw_response.headers and resp.raw_response.headers.get('content-length') and float(resp.raw_response.headers.get('content-length')) > self.config.max_file_size * 1048576:
-                self.logger.info(f"Skipping {tbd_url}. File size threshold exceeded {self.config.max_file_size * 1048576} with {float(resp.raw_response.headers.get('content-length'))}")
+            if (
+                resp
+                and resp.raw_response
+                and resp.raw_response.headers
+                and resp.raw_response.headers.get("content-length")
+                and float(resp.raw_response.headers.get("content-length"))
+                > self.config.max_file_size * 1048576
+            ):
+                self.logger.info(
+                    f"Skipping {tbd_url}. File size threshold exceeded {self.config.max_file_size * 1048576} with {float(resp.raw_response.headers.get('content-length'))}"
+                )
                 continue
 
             if self.simhash.check_page_is_similar(resp):
                 self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
                 continue
-            
-            if (self.max.found_new_max(tbd_url, resp)):
+
+            if self.max.found_new_max(tbd_url, resp):
                 self.logger.info(f"Found new max. Now storing: {tbd_url}")
 
             self.token.analyze_response(resp)
 
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
-                f"using cache {self.config.cache_server}.")
+                f"using cache {self.config.cache_server}."
+            )
             scraped_urls = scraper.scraper(tbd_url, resp, self.robot)
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
