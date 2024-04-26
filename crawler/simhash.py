@@ -34,7 +34,6 @@ class SimHash:
 
         with self.lock:
             if self.hashes:
-                self.logger.info(f"SELF.HASHES = {self.hashes}")
                 for url, saved_hash in self.hashes.items():
                     if (
                         self._compare_hashes(page_hash, saved_hash)
