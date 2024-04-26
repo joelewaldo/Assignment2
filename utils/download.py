@@ -25,6 +25,7 @@ def download(url, config, logger=None):
         None,
     )
 
+
 def prep_download(url, config, logger=None) -> bool:
     """
     Determines if the url should be downloaded by the requesting the headers instead of the full content. It grabs the content-length.
@@ -37,7 +38,7 @@ def prep_download(url, config, logger=None) -> bool:
         f"http://{host}:{port}/", params=[("q", f"{url}"), ("u", f"{config.user_agent}")]
     )
 
-    content_length = resp.headers.get('Content-Length')
+    content_length = resp.headers.get("Content-Length")
     if content_length is not None:
         size = int(content_length)
         if size > config.max_file_size * 1048576:
