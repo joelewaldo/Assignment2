@@ -32,7 +32,7 @@ class SimHash:
         page_hash = self._hashify(page_hash)
         url = response.url
 
-         with self.lock:
+        with self.lock:
             if self.hashes:
                 self.logger.info(f"SELF.HASHES = {self.hashes}")
                 for url, saved_hash in self.hashes.items():
