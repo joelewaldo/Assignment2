@@ -55,7 +55,6 @@ def extract_next_links(url, resp):
             if is_relative(href):
                 href = urljoin(url, href)
             hyperlink_list.append(href)
-
     return hyperlink_list
 
 def is_relative(url):
