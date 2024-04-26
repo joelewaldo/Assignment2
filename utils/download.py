@@ -1,17 +1,11 @@
 import requests
 import cbor
-import time
 
 from utils.response import Response
 
 
-def download(url, config, logger=None, delay: int = 0):
+def download(url, config, logger=None):
     host, port = config.cache_server
-
-    if not delay:
-        delay = 0
-
-    time.sleep(delay)
 
     resp = requests.get(
         f"http://{host}:{port}/", params=[("q", f"{url}"), ("u", f"{config.user_agent}")]
@@ -30,3 +24,26 @@ def download(url, config, logger=None, delay: int = 0):
         },
         None,
     )
+
+def prep_download(url, config, logger=None) -> bool:
+    """
+    Determines if the url should be downloaded by the requesting the headers instead of the full content. It grabs the content-length.
+    Returns True if we should download.
+    Returns False if file size is greater than file size initialized in config.
+    """
+    host, port = config.cache_server
+
+    resp = requests.head(
+        f"http://{host}:{port}/", params=[("q", f"{url}"), ("u", f"{config.user_agent}")]
+    )
+
+    content_length = resp.headers.get('Content-Length')
+    if content_length is not None:
+        size = int(content_length)
+        if size > config.max_file_size * 1048576:
+            if logger:
+                logger.info(
+                    f"Skipping {url}. File size threshold exceeded {config.max_file_size * 1048576} with {size}"
+                )
+            return False
+    return True
