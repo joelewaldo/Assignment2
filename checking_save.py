@@ -8,10 +8,11 @@ from urllib.parse import urlparse, urlunparse
 
 
 class SaveChecker:
-    def __init__(self, frontier_save_file, max_save_file, token_save_file):
+    def __init__(self, frontier_save_file, max_save_file, token_save_file, skip_save_file):
         self.frontier_save_file = frontier_save_file
         self.max_save_file = max_save_file
         self.token_save_file = token_save_file
+        self.skip_save_file = skip_save_file
 
         if not os.path.exists(self.frontier_save_file):
             # Save file does not exist, but request to load save.
@@ -37,6 +38,14 @@ class SaveChecker:
         else:  # Load existing save file, or create one if it does not exist.
             self.token_save = shelve.open(self.token_save_file)
 
+        if not os.path.exists(self.skip_save_file):
+            # Save file does not exist, but request to load save.
+            print("skip_save_file does not exist")
+            self.skip_save = None
+
+        else:  # Load existing save file, or create one if it does not exist.
+            self.skip_save = shelve.open(self.skip_save_file)
+
     def longest_page(self) -> tuple[str, str]:
         return (self.max_save["url"], self.max_save["max_words"])
 
@@ -61,8 +70,9 @@ class SaveChecker:
         urls = [url_tuple[0] for url_tuple in self.frontier_save.values()]
 
         for url in urls:
-            normalized_url = self._normalize_url(url)
-            unique_urls.add(normalized_url)
+            if not url in self.skip_save['skipped']:
+                normalized_url = self._normalize_url(url)
+                unique_urls.add(normalized_url)
         return len(unique_urls)
 
     def count_subdomains(self):

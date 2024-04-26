@@ -9,7 +9,7 @@ import time
 
 
 class Worker(Thread):
-    def __init__(self, worker_id, config, frontier, politeness, robot, simhash, token, m_max):
+    def __init__(self, worker_id, config, frontier, politeness, robot, simhash, token, m_max, skip):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
@@ -18,6 +18,7 @@ class Worker(Thread):
         self.simhash = simhash
         self.max = m_max
         self.token = token
+        self.skip = skip
         # basic check for requests in scraper
         assert {
             getsource(scraper).find(req) for req in {"from requests import", "import requests"}
@@ -46,12 +47,16 @@ class Worker(Thread):
             ###
 
             if not prep_download(tbd_url, self.config, self.logger):
+                self.skip.add_url(tbd_url)
+                self.frontier.mark_url_complete(tbd_url)
                 continue
 
             resp = download(tbd_url, self.config, self.logger)
 
             if not (resp and resp.raw_response):
                 self.logger.info(f"Skipping {tbd_url}. Page is empty.")
+                self.skip.add_url(tbd_url)
+                self.frontier.mark_url_complete(tbd_url)
                 continue
 
             if (
@@ -63,6 +68,9 @@ class Worker(Thread):
                 self.logger.info(
                     f"Skipping {tbd_url}. File size threshold exceeded {self.config.max_file_size * 1048576} with {float(resp.raw_response.headers.get('content-length'))}"
                 )
+                self.skip.add_url(tbd_url)
+                self.frontier.mark_url_complete(tbd_url)
+                continue
 
             if (
                 not self.robot.url_ends_with_xml(tbd_url)
@@ -72,12 +80,16 @@ class Worker(Thread):
                 self.logger.info(
                     f"Skipping {tbd_url}. Page has less than {self.config.low_information_value} words."
                 )
+                self.skip.add_url(tbd_url)
+                self.frontier.mark_url_complete(tbd_url)
                 continue
 
             if not self.robot.url_ends_with_xml(tbd_url) and self.simhash.check_page_is_similar(
                 resp
             ):
                 self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
+                self.skip.add_url(tbd_url)
+                self.frontier.mark_url_complete(tbd_url)
                 continue
 
             if self.max.found_new_max(tbd_url, resp):

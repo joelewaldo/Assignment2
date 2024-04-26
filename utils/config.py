@@ -15,6 +15,7 @@ class Config(object):
         self.simhash_save_file = config["LOCAL PROPERTIES"]["SIMHASHSAVE"]
         self.max_save_file = config["LOCAL PROPERTIES"]["MAXSAVE"]
         self.token_save_file = config["LOCAL PROPERTIES"]["TOKENSAVE"]
+        self.skip_save_file = config["LOCAL PROPERTIES"]["SKIPSAVE"]
 
         self.host = config["CONNECTION"]["HOST"]
         self.port = int(config["CONNECTION"]["PORT"])
