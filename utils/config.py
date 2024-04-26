@@ -22,8 +22,6 @@ class Config(object):
         self.seed_urls = config["CRAWLER"]["SEEDURL"].split(",")
         self.max_file_size = int(config["CRAWLER"]["MAXFILESIZE"])
         self.time_delay = float(config["CRAWLER"]["POLITENESS"])
-        self.max_retries = int(config["CRAWLER"]["MAXRETRIES"])
-        self.retry_time = float(config["CRAWLER"]["RETRYTIME"])
         self.low_information_value = int(config["CRAWLER"]["LOWINFORMATIONVALUE"])
         self.similarity_threshold = float(config["CRAWLER"]["SIMILARITYTHRESHOLD"])
 
