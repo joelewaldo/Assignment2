@@ -64,8 +64,13 @@ class Worker(Thread):
                 self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
                 continue
 
-            if get_word_count_from_response(resp) and get_word_count_from_response(resp) < self.config.low_information_value:
-                self.logger.info(f"Skipping {tbd_url}. Page has less than {self.config.low_information_value} words.")
+            if (
+                get_word_count_from_response(resp)
+                and get_word_count_from_response(resp) < self.config.low_information_value
+            ):
+                self.logger.info(
+                    f"Skipping {tbd_url}. Page has less than {self.config.low_information_value} words."
+                )
                 continue
 
             if self.max.found_new_max(tbd_url, resp):
