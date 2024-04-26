@@ -40,10 +40,14 @@ class SimHash:
                         self._compare_hashes(page_hash, saved_hash)
                         >= self.config.similarity_threshold
                     ):
-                        self.logger.info(f"{resp_url} IS SIMILAR TO {url} WITH PERCENTAGE: {self._compare_hashes(page_hash, saved_hash)}")
+                        self.logger.info(
+                            f"{resp_url} IS SIMILAR TO {url} WITH PERCENTAGE: {self._compare_hashes(page_hash, saved_hash)}"
+                        )
                         return True
-                    self.logger.info(f"{resp_url} NOT SIMILAR TO {url} WITH PERCENTAGE: {self._compare_hashes(page_hash, saved_hash)}")
-                    
+                    self.logger.info(
+                        f"{resp_url} NOT SIMILAR TO {url} WITH PERCENTAGE: {self._compare_hashes(page_hash, saved_hash)}"
+                    )
+
                 self.hashes[resp_url] = page_hash
                 self.save[resp_url] = page_hash
                 self.logger.info(f"SimHash of {resp_url} is --> {page_hash}")
