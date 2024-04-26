@@ -8,13 +8,14 @@ import time
 
 
 class Worker(Thread):
-    def __init__(self, worker_id, config, frontier, politeness, robot, simhash, token):
+    def __init__(self, worker_id, config, frontier, politeness, robot, simhash, token, m_max):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
         self.politeness = politeness
         self.robot = robot
         self.simhash = simhash
+        self.max = m_max
         self.token = token
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
@@ -47,6 +48,9 @@ class Worker(Thread):
             if self.simhash.check_page_is_similar(resp):
                 self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
                 continue
+            
+            if (self.max.found_new_max(tbd_url, resp)):
+                self.logger.info(f"Found new max. Now storing: {tbd_url}")
 
             self.token.analyze_response(resp)
 
