@@ -58,8 +58,10 @@ def extract_next_links(url, resp):
 
     return hyperlink_list
 
+
 def is_relative(url):
     return not urlparse(url).netloc
+
 
 def is_valid(url, robot: Robots):
     # Decide whether to crawl this url or not.
