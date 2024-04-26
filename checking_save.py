@@ -1,6 +1,10 @@
 import shelve
 import os
-
+from utils.config import Config
+from configparser import ConfigParser
+from argparse import ArgumentParser
+from collections import defaultdict
+from urllib.parse import urlparse, urlunparse
 
 class SaveChecker:
     def __init__(self, frontier_save_file, max_save_file, token_save_file):
@@ -45,51 +49,75 @@ class SaveChecker:
         else:
             # Return the first 50 elements as a dictionary
             return dict(mostFrequent[:50])
+    
+    def _normalize_url(self, url):
+        """ Normalize a URL by removing the fragment part """
+        parsed_url = urlparse(url)
+        return urlunparse(parsed_url._replace(fragment=""))
+
+    def unique_pages(self):
+        unique_urls = set()
+        urls = [url_tuple[0] for url_tuple in self.frontier_save.values()]
+
+        for url in urls:
+            normalized_url = self._normalize_url(url)
+            unique_urls.add(normalized_url)
+        return len(unique_urls)
+
+    def count_subdomains(self):
+        subdomains = defaultdict(set)
+        urls = [url_tuple[0] for url_tuple in self.frontier_save.values()]
+
+        for url in urls:
+            parsed_url = urlparse(url)
+            if parsed_url.netloc.endswith('ics.uci.edu'):
+                # Extract the subdomain part and normalize to lowercase
+                subdomain = parsed_url.netloc.lower()
+                # Use a set for the path to ensure uniqueness
+                subdomains[subdomain].add(parsed_url.path)
+
+        # Prepare the output
+        results = []
+        for subdomain, paths in sorted(subdomains.items()):
+            results.append(f"{subdomain}, {len(paths)}")
+
+        return results
 
     def generate_answer(self):
         with open("Answer.txt", "w") as file:
+            file.write("Question 1: \n")
+            question_1 = self.unique_pages()
+            file.write(f"     There are {question_1} unique pages.\n")
             file.write("Question 2: \n")
-            longest_page = self.longest_page()
-            file.write(f"     Longest page url is {longest_page[0]} with {longest_page[1]} words.\n")
+            question_2 = self.longest_page()
+            file.write(f"     Longest page url is {question_2[0]} with {question_2[1]} words.\n")
             file.write("Question 3: \n")
             question_3 = self.common_words()
             for token, freq in question_3.items():
                 file.write(f"     <{token}> -> <{freq}>\n")
-
-            # file.write("Question 2: ")
+            file.write("Question 4: \n")
+            question_4 = self.count_subdomains()
+            for domain in question_4:
+                file.write(f"     {domain}\n")
 
     def __del__(self):
         self.frontier_save.close()
         self.max_save.close()
         self.token_save.close()
 
+def main(config: Config):
+    checker = SaveChecker(config.save_file, config.max_save_file, config.token_save_file)
+    checker.generate_answer()
 
-# '''
-# Question 1:
-# '''
-# fl = "frontier.shelve"
-# obj = SaveChecker(fl)
-# print(obj.length())
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--config_file", type=str, default="config.ini")
+    args = parser.parse_args()
 
+    config_file = args.config_file
 
-# '''
-# Question 2:
-# '''
-# f2 = "insert qusetion 2 save"
-# obj = SaveChecker(f2)
-# print(obj.length())
+    cparser = ConfigParser()
+    cparser.read(config_file)
+    config = Config(cparser)
 
-"""
-Question 3:
-"""
-f3 = "token.shelve"
-obj = SaveChecker(f3)
-print(obj.generate_answer())
-
-
-# '''
-# Question 4:
-# '''
-# fl = "frontier.shelve"
-# obj = SaveChecker(fl)
-# print(obj.length())
+    main(config)
