@@ -1,5 +1,5 @@
 from utils import get_logger
-from utils.tokenizer import tokenize_url_content
+from utils.tokenizer import tokenize_url_content, get_word_count_from_response
 import shelve
 import os
 
@@ -53,8 +53,10 @@ class FindMax:
         the tokenize_url_content util. Updates the self.curr_max attribute and the corresponding shelve
         when a new max has been found.
         """
-
-        word_count = len(tokenize_url_content(resp))
+        word_count = get_word_count_from_response(resp)
+        
+        if not word_count:
+            return False
 
         with self.lock:
             if word_count > self.curr_max["max_words"]:

@@ -30,7 +30,7 @@ class SimHash:
     def check_page_is_similar(self, response):
         page_hash = self._tokenize(response)
         page_hash = self._hashify(page_hash)
-        url = response.url
+        resp_url = response.url
 
         with self.lock:
             if self.hashes:
