@@ -12,6 +12,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -23,17 +25,34 @@ jobs:
           python -m pip install --upgrade pip
           pip install black
 
+      - name: Create a new branch
+        run: |
+          git checkout -b format-branch-${GITHUB_SHA}
+
       - name: Format code with Black and check for changes
         run: |
           black .
-          if git diff --exit-code; then
+          CHANGES=$(git status --porcelain)
+          if [ -z "$CHANGES" ]; then
             echo "No changes in formatting."
+            exit 0
           else
             echo "Formatting changes detected."
             git config --global user.email "action@github.com"
             git config --global user.name "GitHub Action"
             git add .
             git commit -m "Apply Black Formatting"
-            git push
+            git push origin format-branch-${GITHUB_SHA}
           fi
         shell: bash
+
+      - name: Open a pull request
+        uses: repo-sync/pull-request@v2
+        if: success()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          destination_branch: "master"
+          source_branch: "format-branch-${GITHUB_SHA}"
+          pr_title: "Apply Black Formatting"
+          pr_body: "This PR applies Python Black formatting rules."
+          pr_label: "formatting"
