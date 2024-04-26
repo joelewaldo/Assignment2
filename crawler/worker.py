@@ -60,12 +60,20 @@ class Worker(Thread):
                 )
                 continue
 
-            if not self.robot.url_ends_with_xml(tbd_url) and self.simhash.check_page_is_similar(resp):
+            if not self.robot.url_ends_with_xml(tbd_url) and self.simhash.check_page_is_similar(
+                resp
+            ):
                 self.logger.info(f"Skipping {tbd_url}. Content is too similar.")
                 continue
 
-            if not self.robot.url_ends_with_xml(tbd_url) and get_word_count_from_response(resp) and get_word_count_from_response(resp) < self.config.low_information_value:
-                self.logger.info(f"Skipping {tbd_url}. Page has less than {self.config.low_information_value} words.")
+            if (
+                not self.robot.url_ends_with_xml(tbd_url)
+                and get_word_count_from_response(resp)
+                and get_word_count_from_response(resp) < self.config.low_information_value
+            ):
+                self.logger.info(
+                    f"Skipping {tbd_url}. Page has less than {self.config.low_information_value} words."
+                )
                 continue
 
             if self.max.found_new_max(tbd_url, resp):
