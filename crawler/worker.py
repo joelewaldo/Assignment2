@@ -8,7 +8,7 @@ import time
 
 
 class Worker(Thread):
-    def __init__(self, worker_id, config, frontier, politeness, robot, simhash, m_max):
+    def __init__(self, worker_id, config, frontier, politeness, robot, simhash, token, m_max):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
         self.config = config
         self.frontier = frontier
@@ -16,6 +16,7 @@ class Worker(Thread):
         self.robot = robot
         self.simhash = simhash
         self.max = m_max
+        self.token = token
         # basic check for requests in scraper
         assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
@@ -50,6 +51,8 @@ class Worker(Thread):
             
             if (self.max.found_new_max(tbd_url, resp)):
                 self.logger.info(f"Found new max. Now storing: {tbd_url}")
+
+            self.token.analyze_response(resp)
 
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "

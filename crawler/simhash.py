@@ -80,7 +80,7 @@ class SimHash:
         same_bits = ~diff
 
         # using mask because the invert operator could add extra leading 1s past the original bit length
-        bit_length = max(hash1.bit_length(), hash2.bit_length())
+        bit_length = 256
         mask = (1 << bit_length) - 1
 
         # removes potential extra leading bits
