@@ -5,28 +5,27 @@ import os
 import shelve
 import hashlib
 
+
 class SimHash:
     def __init__(self, config, restart):
         self.logger = get_logger("Simhash", "Simhash")
         self.config = config
         self.lock = RLock
         self.hashes: dict[str, str] = {}
-        
+
         if not os.path.exists(self.config.simhash_save_file) and not restart:
             # Save file does not exist, but request to load save.
             self.logger.info(
-                f"Did not find save file {self.config.simhash_save_file}, "
-                f"starting from seed.")
+                f"Did not find save file {self.config.simhash_save_file}, " f"starting from seed."
+            )
         elif os.path.exists(self.config.simhash_save_file) and restart:
             # Save file does exists, but request to start from seed.
-            self.logger.info(
-                f"Found save file {self.config.simhash_save_file}, deleting it.")
+            self.logger.info(f"Found save file {self.config.simhash_save_file}, deleting it.")
             os.remove(self.config.simhash_save_file)
         # Load existing save file, or create one if it does not exist.
         self.save = shelve.open(self.config.simhash_save_file)
         if not restart:
             self.hashes = self.save
-            
 
     def check_page_is_similar(self, response):
         page_hash = self._tokenize(response)
@@ -36,16 +35,17 @@ class SimHash:
         with self.lock:
             if self.hashes:
                 for url, saved_hash in self.hashes.items():
-                    if self._compare_hashes(page_hash, saved_hash) >= self.config.similarity_threshold:
+                    if (
+                        self._compare_hashes(page_hash, saved_hash)
+                        >= self.config.similarity_threshold
+                    ):
                         return True
                 return False
-            
+
             self.hashes[url] = page_hash
             self.save[url] = page_hash
             self.save.sync()
         return False
-            
-
 
     def _tokenize(self, response):
         tokens = tokenize_url_content(response)
@@ -56,20 +56,20 @@ class SimHash:
         try:
             vector = [0] * 256
             for token, freq in token_freq_dict.items():
-                hash_hex = int(hashlib.sha256(token.encode('utf-8')).hexdigest(), 16)
+                hash_hex = int(hashlib.sha256(token.encode("utf-8")).hexdigest(), 16)
                 for i in range(256):
                     bit = (hash_hex >> i) & 1
                     vector[i] += freq if bit == 1 else -freq
-            
+
             simhash = 0
             for pos, count in enumerate(vector):
                 if count > 0:
-                    simhash |= (1 << pos)
+                    simhash |= 1 << pos
 
             simhash_hash = f"{simhash:064x}"
-            
+
             return simhash_hash
-            
+
         except Exception as e:
             self.logger.error("Failed to compute hash: " + str(e))
 
@@ -89,17 +89,17 @@ class SimHash:
         # removes potential extra leading bits
         same_bits = mask & same_bits
 
-        return bin(same_bits).count('1') / bit_length
+        return bin(same_bits).count("1") / bit_length
 
     def __del__(self):
         self.save.close()
-     
+
 
 if __name__ == "__main__":
     pass
     # token1 = tokenize_from_file("../test1.txt")
     # token2 = tokenize_from_file("../test2.txt")
-    
+
     # token_frequencies1 = computeWordFrequencies(token1)
     # token_frequencies2 = computeWordFrequencies(token2)
 
