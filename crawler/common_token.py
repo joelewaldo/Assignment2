@@ -5,6 +5,7 @@ from utils import get_logger
 from threading import RLock
 from utils.tokenizer import stop_words
 
+
 class Token:
     def __init__(self, config, restart):
         self.logger = get_logger("Token", "Token")
