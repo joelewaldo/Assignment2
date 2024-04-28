@@ -68,9 +68,10 @@ class SaveChecker:
     def unique_pages(self):
         unique_urls = set()
         urls = [url_tuple[0] for url_tuple in self.frontier_save.values()]
+        skipped = set(self.skip_save.values())
 
         for url in urls:
-            if not url in self.skip_save["skipped"]:
+            if not url in skipped:
                 normalized_url = self._normalize_url(url)
                 unique_urls.add(normalized_url)
         return len(unique_urls)
@@ -118,7 +119,7 @@ class SaveChecker:
 
 
 def main(config: Config):
-    checker = SaveChecker(config.save_file, config.max_save_file, config.token_save_file)
+    checker = SaveChecker(config.save_file, config.max_save_file, config.token_save_file, config.skip_save_file)
     checker.generate_answer()
 
 
