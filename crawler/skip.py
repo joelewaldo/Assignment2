@@ -4,6 +4,7 @@ import os
 import shelve
 from utils import get_logger, get_urlhash, normalize
 
+
 class Skip:
     def __init__(self, config, restart):
         self.logger = get_logger("Skip", "Skip")

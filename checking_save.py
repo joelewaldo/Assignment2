@@ -119,7 +119,9 @@ class SaveChecker:
 
 
 def main(config: Config):
-    checker = SaveChecker(config.save_file, config.max_save_file, config.token_save_file, config.skip_save_file)
+    checker = SaveChecker(
+        config.save_file, config.max_save_file, config.token_save_file, config.skip_save_file
+    )
     checker.generate_answer()
 
 

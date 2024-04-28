@@ -133,6 +133,7 @@ def get_word_count_from_response(resp):
     else:
         return None
 
+
 stop_words = {
     "a",
     "about",
