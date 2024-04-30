@@ -46,19 +46,24 @@ class Worker(Thread):
             # temporarily here so we can catch errors
             ###
 
+            # requests for the headers of the page first. if the headers show that the file content is above a certain threshold, then we will skip.
             if not prep_download(tbd_url, self.config, self.logger):
                 self.skip.add_url(tbd_url)
                 self.frontier.mark_url_complete(tbd_url)
                 continue
 
+            # downloads the page
             resp = download(tbd_url, self.config, self.logger)
 
+            # Checks if the page has a resp and resp.raw_response. If they don't have this, then page is blank so we skip the url.
             if not (resp and resp.raw_response):
                 self.logger.info(f"Skipping {tbd_url}. Page is empty.")
                 self.skip.add_url(tbd_url)
                 self.frontier.mark_url_complete(tbd_url)
                 continue
 
+            # Another check for content length after we have grabbed the content. If the file content is above a certain threshold then we will
+            # skip the url.
             if (
                 resp.raw_response.headers
                 and resp.raw_response.headers.get("content-length")
@@ -72,6 +77,7 @@ class Worker(Thread):
                 self.frontier.mark_url_complete(tbd_url)
                 continue
 
+            # Checks the number of words a url has. If it is above a certain threshold, then we will skip the url.
             if (
                 not self.robot.url_ends_with_xml(tbd_url)
                 and get_word_count_from_response(resp)
@@ -84,6 +90,7 @@ class Worker(Thread):
                 self.frontier.mark_url_complete(tbd_url)
                 continue
 
+            # Checks the simhash of the page. If it detects the page as similar to another one we already have, it will skip.
             if not self.robot.url_ends_with_xml(tbd_url) and self.simhash.check_page_is_similar(
                 resp
             ):
@@ -92,9 +99,11 @@ class Worker(Thread):
                 self.frontier.mark_url_complete(tbd_url)
                 continue
 
+            # Tracks the number of words in a certain page. If a new max is found we will log it.
             if self.max.found_new_max(tbd_url, resp):
                 self.logger.info(f"Found new max. Now storing: {tbd_url}")
 
+            # Computes the token frequencies of the url and saves it in the token save file.
             self.token.analyze_response(resp)
 
             self.logger.info(

@@ -9,6 +9,11 @@ import os
 
 
 class Robots:
+    """
+    This class will track the robots.txt for each base url. When a function like can_fetch, crawl_delay, or sitemaps is called, it will first check
+    if the robots.txt file is already saved inside the dictionary. If it is not, it will then get the robots.txt for that url and save it inside the dictionary.
+    The dictionary is then always synced up with the robot save file.
+    """
     def __init__(self, config, restart):
         self.config = config
         self.userAgent = config.user_agent

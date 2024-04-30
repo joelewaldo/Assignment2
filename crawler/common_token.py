@@ -5,8 +5,10 @@ from utils import get_logger
 from threading import RLock
 from utils.tokenizer import stop_words
 
-
 class Token:
+    """
+    This class tracks the frequencies of tokens inside different urls. These frequencies are saved in the token save file.
+    """
     def __init__(self, config, restart):
         self.logger = get_logger("Token", "Token")
         self.config = config
@@ -28,6 +30,16 @@ class Token:
             self.counter = self.save
 
     def analyze_response(self, resp):
+        """
+        Analyzes the responses by tokenizing the url content then saving the frequencies inside the save file.
+        Uses RLock to ensure that saving is thread safe.
+
+        Parameters:
+        - resp: response to be analyzed
+        
+        Returns:
+        - None
+        """
         with self.lock:
             try:
                 res = self._tokenize_url_content(resp)

@@ -9,6 +9,10 @@ from scraper import is_valid
 
 
 class Frontier(object):
+    """
+    Manages which url should be grabbed next from the queue and also saves the status of them by keeping track if they have been
+    visited or not.
+    """
     def __init__(self, config, restart, robot):
         self.logger = get_logger("FRONTIER")
         self.config = config
@@ -52,6 +56,7 @@ class Frontier(object):
         )
 
     def get_tbd_url(self):
+        """This function grabs the next url to be downloaded from the queue."""
         try:
             url = self.to_be_downloaded.get_nowait()
             return url
@@ -59,6 +64,7 @@ class Frontier(object):
             return None
 
     def add_url(self, url):
+        """This function adds a url to the queue and saves it in the save file."""
         with self.lock:
             url = normalize(url)
             urlhash = get_urlhash(url)
@@ -69,6 +75,7 @@ class Frontier(object):
                 self.to_be_downloaded.put(url)
 
     def mark_url_complete(self, url):
+        """This function marks a url as completed and tracks it into the save file."""
         with self.lock:
             self.to_be_downloaded.task_done()
             urlhash = get_urlhash(url)

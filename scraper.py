@@ -6,48 +6,46 @@ from bs4 import BeautifulSoup
 
 
 def scraper(url, resp, robot: Robots):
-    # print("++++++++ (Scraper.py) url: HERE", url)
-    # print("++++++++(Scraper.py) resp: HERE", resp)
-
-    # checking for any sitemap links
+    # Checks if a url is xml. If it is an xml it assumes it is a sitemap and scrapes it for all the links.
     sitemaps = robot.parse_sitemap(resp)
+    
+    # If it finds any urls after parsing the url, it will return only the valid links
     if sitemaps:
+        # Iterate through the list of links in site map and only return links thatt are valid and met the requirements
         return [link for link in sitemaps if is_valid(link, robot)]
 
     links = extract_next_links(url, resp)
+    
+    # Res is created by iterating through links and determining if it's valid through is_valid
+    # and appends the links found in robots.txt
     res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
 
     return res
 
 
 def extract_next_links(url, resp):
-    # Implementation required.
-    # url: the URL that was used to get the page
-    # resp.url: the actual url of the page
-    # resp.status: the status code returned by the server. 200 is OK, you got the page. Other numbers mean that there was some kind of problem.
-    # resp.error: when status is not 200, you can check the error here, if needed.
-    # resp.raw_response: this is where the page actually is. More specifically, the raw_response has two parts:
-    #         resp.raw_response.url: the url, again
-    #         resp.raw_response.content: the content of the page!
-    # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-
-    # max retries: 5 for status and errors then return empty list
 
     # Detect and avoid dead URLs that return a 200 status but no data (click here to see what the different HTTP status codes meanLinks to an external site.)
     hyperlink_list = []
 
+    # If the response returns status 200, but there is no raw response or content it will just return a blank list.
     if resp.status == 200 and (resp.raw_response is None or not resp.raw_response.content):
         return hyperlink_list
 
+    # If the response returns status 204 (No Content) or status greater than 400 (for invalid url)
     if resp.status == 204 or resp.status >= 400:
         return hyperlink_list
 
+    # If the response is a 300, meaning it is a redirect, it will find the new
     if resp.status >= 300:
+        # Redirect Page will have a "Location" headers where the redirect URL located
         if "Location" in resp.raw_response.headers:
+            # Return that redirect link by joining the the subdomain in Location with the parent URL
             return [urljoin(resp.url, resp.headers["Location"])]
 
     soup = BeautifulSoup(resp.raw_response.content, "html.parser", from_encoding="utf-8")
-
+    
+    # finds all the anchor tags and href links and turns them all into absolute urls
     all_links = soup.find_all("a")
     for link in all_links:
         href = link.get("href")
@@ -59,6 +57,9 @@ def extract_next_links(url, resp):
 
 
 def is_relative(url):
+    '''
+    returns whether or not the url is a relative url
+    '''
     return not urlparse(url).netloc
 
 
@@ -67,13 +68,22 @@ def is_valid(url, robot: Robots):
     # If you decide to crawl it, return True; otherwise return False.
     # There are already some conditions that return False.
     try:
+        # Obtain a parsed version of the url to easily access it's individual components
         parsed = urlparse(url)
 
+
+        # Check if the scheme isn't http or https. If it isn't, the url isn't valid
         if parsed.scheme not in set(["http", "https"]):
             return False
 
+
+        # Check the netloc of the parsed url to obtain the authority. Split by . to easily
+        # access the individual components
         domain = parsed.netloc
         dotlist = domain.split(".")
+       
+        # Check if the last 3 domain labels are within the set. If they aren't within the set,
+        # the url isn't valid.
         if not ".".join(dotlist[-3:]) in set(
             [
                 ".ics.uci.edu",
@@ -87,15 +97,20 @@ def is_valid(url, robot: Robots):
             ]
         ):
             return False
+       
+        # Our reddit upvote system for the code
         """
         upvote:  1, 1
         downvote: 10
-        
+       
         """
-
+       
+        # Check that the user object can fetch the url. If not, the url isn't valid.
         if not robot.can_fetch(url):
             return False
 
+
+        # Checks to ensure that the file extension isn't disallowed. If it is, the url isn't valid.
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -107,6 +122,7 @@ def is_valid(url, robot: Robots):
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$",
             parsed.path.lower(),
         )
+
 
     except TypeError:
         print("TypeError for ", parsed)
