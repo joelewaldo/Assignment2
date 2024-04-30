@@ -5,6 +5,7 @@ import os
 
 import threading
 
+
 class FindMax:
     def __init__(self, config, restart):
         # Initialize an instance of the config file and userAgent obtained from arguments
@@ -51,7 +52,7 @@ class FindMax:
         Updates self.curr_max with the set stored in the shelve. self.curr_max will be used in all
         corresonding methods to access the dictionary.
         """
-        
+
         # Set self.curr_max to the instance stored in self.save
         self.curr_max = self.save
 

@@ -12,10 +12,11 @@ class SimHash:
     save it in the save file. When we want to compare the similarity of a page,  we will iterate through all the hashes saved and if the similarity is
     above a certain threshold, it will return True for being similar and False for being unsimilar.
     """
+
     def __init__(self, config, restart):
-        '''
+        """
         initializes the simhash save files storing urls as keys and their hashes as values
-        '''
+        """
         self.logger = get_logger("Simhash", "Simhash")
         self.config = config
         self.lock = RLock()
@@ -36,11 +37,11 @@ class SimHash:
             self.hashes = self.save
 
     def check_page_is_similar(self, response):
-        '''
+        """
         this function looks through all the hashes and tries to determine if there is a page that is above our similarity threshold
         if so --> return true for similarity
         else --> return false
-        '''
+        """
 
         # tokenizes the page
         page_hash = self._tokenize(response)
@@ -72,7 +73,7 @@ class SimHash:
                 self.logger.info(f"SimHash of {resp_url} is --> {page_hash}")
                 self.save.sync()
                 return False
-            # this will get run when there is currently nothing in the save file since the hashes are not similar 
+            # this will get run when there is currently nothing in the save file since the hashes are not similar
             # we will return false and store the page with its hash
             self.hashes[resp_url] = page_hash
             self.save[resp_url] = page_hash
@@ -82,18 +83,18 @@ class SimHash:
         return False
 
     def _tokenize(self, response):
-        ''' 
+        """
         tokenizes the url and store the word frequencies in a dictionary
         and return the dictionary
-        '''
+        """
         tokens = tokenize_url_content(response)
         token_frequencies = computeWordFrequencies(tokens)
         return token_frequencies
 
     def _hashify(self, token_freq_dict):
-        '''
+        """
         returns the hash of the current page based of the tokens dictionary
-        '''
+        """
         try:
             # intiializes the vector with 256 0's as bits
             vector = [0] * 256

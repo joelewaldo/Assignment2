@@ -13,6 +13,7 @@ class Frontier(object):
     Manages which url should be grabbed next from the queue and also saves the status of them by keeping track if they have been
     visited or not.
     """
+
     def __init__(self, config, restart, robot):
         self.logger = get_logger("FRONTIER")
         self.config = config

@@ -9,6 +9,7 @@ class Skip:
     """
     This class keeps track of all the pages that are skipped and saves it all in a save file.
     """
+
     def __init__(self, config, restart):
         self.logger = get_logger("Skip", "Skip")
         self.config = config
