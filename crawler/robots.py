@@ -14,6 +14,7 @@ class Robots:
     if the robots.txt file is already saved inside the dictionary. If it is not, it will then get the robots.txt for that url and save it inside the dictionary.
     The dictionary is then always synced up with the robot save file.
     """
+
     def __init__(self, config, restart):
         self.config = config
         self.userAgent = config.user_agent

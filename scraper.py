@@ -8,14 +8,14 @@ from bs4 import BeautifulSoup
 def scraper(url, resp, robot: Robots):
     # Checks if a url is xml. If it is an xml it assumes it is a sitemap and scrapes it for all the links.
     sitemaps = robot.parse_sitemap(resp)
-    
+
     # If it finds any urls after parsing the url, it will return only the valid links
     if sitemaps:
         # Iterate through the list of links in site map and only return links thatt are valid and met the requirements
         return [link for link in sitemaps if is_valid(link, robot)]
 
     links = extract_next_links(url, resp)
-    
+
     # Res is created by iterating through links and determining if it's valid through is_valid
     # and appends the links found in robots.txt
     res = [link for link in links if is_valid(link, robot)] + robot.sitemaps(resp.url)
@@ -44,7 +44,7 @@ def extract_next_links(url, resp):
             return [urljoin(resp.url, resp.headers["Location"])]
 
     soup = BeautifulSoup(resp.raw_response.content, "html.parser", from_encoding="utf-8")
-    
+
     # finds all the anchor tags and href links and turns them all into absolute urls
     all_links = soup.find_all("a")
     for link in all_links:
@@ -57,9 +57,9 @@ def extract_next_links(url, resp):
 
 
 def is_relative(url):
-    '''
+    """
     returns whether or not the url is a relative url
-    '''
+    """
     return not urlparse(url).netloc
 
 
@@ -71,17 +71,15 @@ def is_valid(url, robot: Robots):
         # Obtain a parsed version of the url to easily access it's individual components
         parsed = urlparse(url)
 
-
         # Check if the scheme isn't http or https. If it isn't, the url isn't valid
         if parsed.scheme not in set(["http", "https"]):
             return False
-
 
         # Check the netloc of the parsed url to obtain the authority. Split by . to easily
         # access the individual components
         domain = parsed.netloc
         dotlist = domain.split(".")
-       
+
         # Check if the last 3 domain labels are within the set. If they aren't within the set,
         # the url isn't valid.
         if not ".".join(dotlist[-3:]) in set(
@@ -97,18 +95,17 @@ def is_valid(url, robot: Robots):
             ]
         ):
             return False
-       
+
         # Our reddit upvote system for the code
         """
         upvote:  1, 1
         downvote: 10
        
         """
-       
+
         # Check that the user object can fetch the url. If not, the url isn't valid.
         if not robot.can_fetch(url):
             return False
-
 
         # Checks to ensure that the file extension isn't disallowed. If it is, the url isn't valid.
         return not re.match(
@@ -122,7 +119,6 @@ def is_valid(url, robot: Robots):
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$",
             parsed.path.lower(),
         )
-
 
     except TypeError:
         print("TypeError for ", parsed)

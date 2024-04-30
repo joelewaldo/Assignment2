@@ -9,6 +9,7 @@ class Politeness:
     the last time the page with the base url was accessed. If it was accessed recently, it will sleep the thread and it will be able to then
     make the request after the wait. However, if it was not accessed recently, the thread will be able to access the content without any wait.
     """
+
     def __init__(self, robot: Robots):
         self.robot = robot
         self.delay = robot.config.time_delay

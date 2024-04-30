@@ -5,6 +5,7 @@ class Config(object):
     """
     This class defines all the config parameters used in the program.
     """
+
     def __init__(self, config):
         self.user_agent = config["IDENTIFICATION"]["USERAGENT"].strip()
         print(self.user_agent)

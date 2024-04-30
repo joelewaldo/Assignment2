@@ -94,7 +94,7 @@ class SaveChecker:
 
         # Prepare the output
         results = []
-        # Sort the output in alphabetical order  
+        # Sort the output in alphabetical order
         for subdomain, paths in sorted(subdomains.items()):
             results.append(f"{subdomain}, {len(paths)}")
 
@@ -121,7 +121,7 @@ class SaveChecker:
                 file.write(f"     {domain}\n")
 
     def __del__(self):
-         # Close the save file when the destructor is called to clean up
+        # Close the save file when the destructor is called to clean up
         self.frontier_save.close()
         self.max_save.close()
         self.token_save.close()

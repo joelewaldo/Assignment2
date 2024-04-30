@@ -8,10 +8,9 @@ from crawler import Crawler
 
 def main(config_file, restart):
     """
-    Defines the main function, taking in the config file and restart as parameters. 
+    Defines the main function, taking in the config file and restart as parameters.
     """
 
-    
     cparser = ConfigParser()
     cparser.read(config_file)
     config = Config(cparser)
