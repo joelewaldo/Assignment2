@@ -124,6 +124,7 @@ def printWordFrequencies(frequencies: dict[str, int]) -> None:
 
 
 def get_word_count_from_response(resp):
+    """This function grabs the number of tokens found in the response parameter."""
     if resp.status == 200:
         soup = BeautifulSoup(resp.raw_response.content, "html.parser")
         text = soup.get_text()

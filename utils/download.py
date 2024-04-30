@@ -5,6 +5,7 @@ from utils.response import Response
 
 
 def download(url, config, logger=None):
+    """This function downloades the page content of a certain url and returns the Response."""
     host, port = config.cache_server
 
     resp = requests.get(

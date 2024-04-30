@@ -6,6 +6,9 @@ from utils import get_logger, get_urlhash, normalize
 
 
 class Skip:
+    """
+    This class keeps track of all the pages that are skipped and saves it all in a save file.
+    """
     def __init__(self, config, restart):
         self.logger = get_logger("Skip", "Skip")
         self.config = config
@@ -32,6 +35,10 @@ class Skip:
         self.logger.info(f"Found {len(self.skip_set)} skipped urls in the save file.")
 
     def add_url(self, url):
+        """
+        When there is a url to be skipped, it will first get the hash of the url and check if that hash already exists within our saves. If it does not,
+        it will add it to the dictionary of urls that we skip. Then the save files are synced.
+        """
         hashed_url = self._getHashUrl(url)
         with self.lock:
             if hashed_url not in self.save:
@@ -50,6 +57,7 @@ class Skip:
         return f"{parsed.scheme}://{parsed.netloc}"
 
     def _getHashUrl(self, url):
+        """Gets the url hash for a certain url."""
         baseUrl = self._getBaseUrl(url)
         robot_url = normalize(baseUrl)
         return get_urlhash(robot_url)

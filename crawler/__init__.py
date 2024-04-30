@@ -10,6 +10,9 @@ from crawler.skip import Skip
 
 
 class Crawler(object):
+    '''
+    initializes the crawler with all the necessary config variables
+    '''
     def __init__(
         self,
         config,

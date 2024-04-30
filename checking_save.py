@@ -66,6 +66,7 @@ class SaveChecker:
         return urlunparse(parsed_url._replace(fragment=""))
 
     def unique_pages(self):
+        """Check for unique pages in the frontier save and returns the count of unique pages"""
         unique_urls = set()
         urls = [url_tuple[0] for url_tuple in self.frontier_save.values()]
         skipped = set(self.skip_save.values())
@@ -77,9 +78,12 @@ class SaveChecker:
         return len(unique_urls)
 
     def count_subdomains(self):
+        # Initialize the subdmains disctionary to efficiently counts them
         subdomains = defaultdict(set)
+        # Get URLS from our generated frontier
         urls = [url_tuple[0] for url_tuple in self.frontier_save.values()]
 
+        # Iterate through the lsit of URLs and check whether URL is the subdomain URL of ics.uci.edu
         for url in urls:
             parsed_url = urlparse(url)
             if parsed_url.netloc == "ics.uci.edu" or parsed_url.netloc.endswith(".ics.uci.edu"):
@@ -90,12 +94,16 @@ class SaveChecker:
 
         # Prepare the output
         results = []
+        # Sort the output in alphabetical order  
         for subdomain, paths in sorted(subdomains.items()):
             results.append(f"{subdomain}, {len(paths)}")
 
         return results
 
     def generate_answer(self):
+        """
+        Output response to Answer.txt
+        """
         with open("Answer.txt", "w") as file:
             file.write("Question 1: \n")
             question_1 = self.unique_pages()
@@ -113,6 +121,7 @@ class SaveChecker:
                 file.write(f"     {domain}\n")
 
     def __del__(self):
+         # Close the save file when the destructor is called to clean up
         self.frontier_save.close()
         self.max_save.close()
         self.token_save.close()
