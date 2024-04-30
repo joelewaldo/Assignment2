@@ -52,16 +52,10 @@ class Skip:
                     f"Skipping {url}. There are now {len(self.skip_set)} skipped urls in the save file."
                 )
 
-    def _getBaseUrl(self, url):
-        """Extract the base URL from the given URL."""
-        parsed = urlparse(url)
-        return f"{parsed.scheme}://{parsed.netloc}"
-
     def _getHashUrl(self, url):
         """Gets the url hash for a certain url."""
-        baseUrl = self._getBaseUrl(url)
-        robot_url = normalize(baseUrl)
-        return get_urlhash(robot_url)
+        url = normalize(url)
+        return get_urlhash(url)
 
     def __del__(self):
         self.save.close()
