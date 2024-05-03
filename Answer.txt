@@ -1,58 +1,58 @@
 Question 1: 
-     There are 20952 unique pages.
+     There are 20975 unique pages.
 Question 2: 
      Longest page url is https://grape.ics.uci.edu/wiki/public/raw-attachment/wiki/cs221-2019-spring-project2/Team2StressTest.txt with 126019 words.
 Question 3: 
-     <0> -> <112336>
-     <1> -> <88031>
-     <data> -> <75046>
-     <2> -> <67577>
-     <s> -> <66837>
-     <uci> -> <50038>
-     <3> -> <45991>
-     <ofthe> -> <45460>
-     <classification> -> <43797>
-     <research> -> <41516>
-     <multivariate> -> <40891>
-     <contact> -> <40279>
-     <4> -> <39549>
-     <learning> -> <37862>
-     <5> -> <34531>
-     <sciences> -> <34166>
-     <policy> -> <33302>
-     <time> -> <32754>
-     <view> -> <32293>
-     <undo> -> <31799>
-     <set> -> <31575>
-     <10> -> <29922>
-     <real> -> <29196>
+     <0> -> <112611>
+     <1> -> <88205>
+     <data> -> <75112>
+     <2> -> <67638>
+     <s> -> <66836>
+     <uci> -> <50086>
+     <3> -> <46022>
+     <ofthe> -> <45477>
+     <classification> -> <43858>
+     <research> -> <41523>
+     <multivariate> -> <40961>
+     <contact> -> <40347>
+     <4> -> <39535>
+     <learning> -> <37922>
+     <5> -> <34559>
+     <sciences> -> <34232>
+     <policy> -> <33367>
+     <time> -> <32802>
+     <view> -> <32357>
+     <undo> -> <31892>
+     <set> -> <31587>
+     <10> -> <29962>
+     <real> -> <29237>
      <d> -> <29050>
-     <type> -> <28217>
-     <series> -> <27938>
-     <repository> -> <27912>
-     <sets> -> <27772>
+     <type> -> <28280>
+     <series> -> <27982>
+     <repository> -> <27975>
+     <sets> -> <27835>
      <2022> -> <26423>
-     <inthe> -> <25905>
-     <6> -> <25846>
-     <e> -> <25803>
+     <inthe> -> <25901>
+     <6> -> <25832>
+     <e> -> <25805>
      <n> -> <25478>
-     <p> -> <25258>
+     <p> -> <25257>
      <2018> -> <25220>
-     <ics> -> <24847>
-     <new> -> <24403>
+     <ics> -> <24852>
+     <new> -> <24446>
      <t> -> <23801>
      <m> -> <23480>
-     <2019> -> <22572>
-     <students> -> <22488>
-     <7> -> <22349>
-     <news> -> <22088>
+     <2019> -> <22589>
+     <students> -> <22489>
+     <7> -> <22358>
+     <news> -> <22092>
+     <machine> -> <21986>
      <b> -> <21983>
-     <machine> -> <21944>
-     <regression> -> <21827>
-     <2021> -> <21560>
-     <clustering> -> <21533>
-     <8> -> <21363>
-     <2020> -> <20953>
+     <regression> -> <21868>
+     <clustering> -> <21561>
+     <2021> -> <21561>
+     <8> -> <21360>
+     <2020> -> <20955>
 Question 4: 
      accessibility.ics.uci.edu, 6
      acoi.ics.uci.edu, 109

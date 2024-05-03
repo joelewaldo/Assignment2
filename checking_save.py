@@ -114,7 +114,7 @@ class SaveChecker:
             file.write("Question 3: \n")
             question_3 = self.common_words()
             for token, freq in question_3.items():
-                file.write(f"     <{token}> -> <{freq}>\n")
+                file.write(f"     {token} -> {freq}\n")
             file.write("Question 4: \n")
             question_4 = self.count_subdomains()
             for domain in question_4:
